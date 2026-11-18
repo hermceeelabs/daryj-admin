@@ -183,7 +183,7 @@
     <div id="tab-dashboard" class="tab-content space-y-6">
 
       <!-- 4 High-Impact KPI Cards -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 pb-6 border-b border-slate-800">
         <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800">
           <div class="flex items-center justify-between">
             <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Contracted Revenue</span>
@@ -294,7 +294,7 @@
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs">
             <thead>
-              <tr class="text-slate-400 border-b border-slate-800 uppercase tracking-wider text-[10px]">
+              <tr class="bg-slate-800/80 text-slate-200 border-b border-slate-700 uppercase tracking-wider text-[11px] font-extrabold whitespace-nowrap">
                 <th class="py-2.5 px-3">Order ID</th>
                 <th class="py-2.5 px-3">Client &amp; Location</th>
                 <th class="py-2.5 px-3">System Package</th>
@@ -314,7 +314,7 @@
     <!-- TAB 2: CLIENT ORDERS                                      -->
     <!-- ========================================================= -->
     <div id="tab-orders" class="tab-content hidden space-y-6">
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 pb-6 border-b border-slate-800">
         <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800">
           <span class="text-[11px] font-bold text-slate-400 uppercase">Total Orders</span>
           <h3 id="ordStatCount" class="text-2xl font-black text-white font-brand mt-1">0</h3>
@@ -334,7 +334,7 @@
       </div>
 
       <div class="bg-slate-900 rounded-2xl border border-slate-800 p-5 space-y-4">
-        <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-800">
           <div class="flex flex-wrap items-center gap-2.5 flex-1 min-w-[240px]">
             <div class="relative flex-1 max-w-xs">
               <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
@@ -360,7 +360,7 @@
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs">
             <thead>
-              <tr class="text-slate-400 border-b border-slate-800 uppercase tracking-wider text-[10px]">
+              <tr class="bg-slate-800/80 text-slate-200 border-b border-slate-700 uppercase tracking-wider text-[11px] font-extrabold whitespace-nowrap">
                 <th class="py-3 px-3">Order ID &amp; Date</th>
                 <th class="py-3 px-3">Client Info</th>
                 <th class="py-3 px-3">Package &amp; Engineer</th>
@@ -380,7 +380,7 @@
     <!-- TAB 3: CLIENTS DIRECTORY                                  -->
     <!-- ========================================================= -->
     <div id="tab-clients" class="tab-content hidden space-y-6">
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 pb-6 border-b border-slate-800">
         <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800">
           <span class="text-[11px] font-bold text-slate-400 uppercase">Total Clients</span>
           <h3 id="clientsStatCount" class="text-2xl font-black text-white font-brand mt-1">0</h3>
@@ -400,7 +400,7 @@
       </div>
 
       <div class="bg-slate-900 rounded-2xl border border-slate-800 p-5 space-y-4">
-        <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-800">
           <div class="relative flex-1 max-w-sm">
             <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
             <input id="clientSearchInput" oninput="renderClientsTab()" type="text" placeholder="Search client name, phone, email, address..." class="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#F59E0B]" />
@@ -414,7 +414,7 @@
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs">
             <thead>
-              <tr class="text-slate-400 border-b border-slate-800 uppercase tracking-wider text-[10px]">
+              <tr class="bg-slate-800/80 text-slate-200 border-b border-slate-700 uppercase tracking-wider text-[11px] font-extrabold whitespace-nowrap">
                 <th class="py-3 px-3">Client Name</th>
                 <th class="py-3 px-3">Contact (Phone / Email)</th>
                 <th class="py-3 px-3">Site Address</th>
@@ -434,7 +434,7 @@
     <!-- TAB 4: PROJECT MANAGEMENT & STAGE CONTROL                 -->
     <!-- ========================================================= -->
     <div id="tab-projects" class="tab-content hidden space-y-6">
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 pb-6 border-b border-slate-800">
         <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800">
           <span class="text-[11px] font-bold text-slate-400 uppercase">Total Projects</span>
           <h3 id="projStatCount" class="text-2xl font-black text-white font-brand mt-1">0</h3>
@@ -453,7 +453,7 @@
         </div>
       </div>
 
-      <div class="flex flex-wrap items-center justify-end gap-2.5">
+      <div class="flex flex-wrap items-center justify-end gap-2.5 pb-4 border-b border-slate-800">
         <select id="projectFilterSelect" onchange="renderProjectsTab()" class="px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-200">
           <option value="all">All Projects</option>
           <option value="active">Active Sites (Stage 1-4)</option>
@@ -476,7 +476,7 @@
     <!-- TAB 5: INVENTORY MANAGEMENT                               -->
     <!-- ========================================================= -->
     <div id="tab-inventory" class="tab-content hidden space-y-6">
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 pb-6 border-b border-slate-800">
         <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800">
           <span class="text-[11px] font-bold text-slate-400 uppercase">Total SKUs / Units</span>
           <h3 id="invStatUnits" class="text-2xl font-black text-white font-brand mt-1">0</h3>
@@ -496,7 +496,7 @@
       </div>
 
       <div class="bg-slate-900 rounded-2xl border border-slate-800 p-5 space-y-4">
-        <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-800">
           <div class="flex flex-wrap items-center gap-2.5 flex-1">
             <div class="relative flex-1 max-w-xs">
               <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
@@ -525,7 +525,7 @@
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs">
             <thead>
-              <tr class="text-slate-400 border-b border-slate-800 uppercase tracking-wider text-[10px]">
+              <tr class="bg-slate-800/80 text-slate-200 border-b border-slate-700 uppercase tracking-wider text-[11px] font-extrabold whitespace-nowrap">
                 <th class="py-3 px-3">SKU &amp; Item Name</th>
                 <th class="py-3 px-3">Category</th>
                 <th class="py-3 px-3 text-center">In-Stock</th>
@@ -548,7 +548,7 @@
     <div id="tab-financials" class="tab-content hidden space-y-6">
 
       <!-- P&L Summary Strip -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4 pb-6 border-b border-slate-800">
         <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800">
           <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Gross Revenue</span>
           <h3 id="finGrossRev" class="text-xl font-black text-white font-brand mt-1">₦0</h3>
@@ -595,7 +595,7 @@
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs">
             <thead>
-              <tr class="text-slate-400 border-b border-slate-800 uppercase tracking-wider text-[10px]">
+              <tr class="bg-slate-800/80 text-slate-200 border-b border-slate-700 uppercase tracking-wider text-[11px] font-extrabold whitespace-nowrap">
                 <th class="py-2.5 px-3">Project / Client</th>
                 <th class="py-2.5 px-3">Contract Rev.</th>
                 <th class="py-2.5 px-3">Collected</th>
@@ -619,7 +619,7 @@
             <span class="text-slate-600 shrink-0">|</span>
             <p class="text-[11px] text-slate-400 whitespace-nowrap truncate">Track company-wide overhead (rent, salaries, diesel, marketing) and site-specific expenses.</p>
           </div>
-          <div class="flex flex-wrap items-center justify-end gap-2">
+          <div class="flex flex-wrap items-center justify-end gap-2 pb-4 border-b border-slate-800">
             <select id="expenseTypeFilter" onchange="renderFinancialsTab()" class="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-200">
               <option value="all">All Expenses</option>
               <option value="general">General Overhead Only</option>
@@ -635,7 +635,7 @@
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs">
             <thead>
-              <tr class="text-slate-400 border-b border-slate-800 uppercase tracking-wider text-[10px]">
+              <tr class="bg-slate-800/80 text-slate-200 border-b border-slate-700 uppercase tracking-wider text-[11px] font-extrabold whitespace-nowrap">
                 <th class="py-2.5 px-3">Date</th>
                 <th class="py-2.5 px-3">Scope / Project</th>
                 <th class="py-2.5 px-3">Category</th>
@@ -654,7 +654,7 @@
     <!-- TAB 7: ENGINEER DISPATCH                                  -->
     <!-- ========================================================= -->
     <div id="tab-engineers" class="tab-content hidden space-y-6">
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 pb-6 border-b border-slate-800">
         <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800">
           <span class="text-[11px] font-bold text-slate-400 uppercase">Field Engineers</span>
           <h3 id="engStatTotal" class="text-2xl font-black text-white font-brand mt-1">0</h3>
