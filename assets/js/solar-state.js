@@ -9,6 +9,7 @@ const STORAGE_KEY_CLIENT = 'daryj_solar_current_client_v1';
 const STORAGE_KEY_CLIENTS = 'daryj_solar_clients_v1';
 const STORAGE_KEY_EXPENSES = 'daryj_solar_expenses_v1';
 const STORAGE_KEY_ENGINEERS = 'daryj_solar_engineers_v1';
+const STORAGE_KEY_BATCHES = 'daryj_solar_batches_v1';
 
 // Default Hardware Inventory Seed
 const DEFAULT_INVENTORY = [
@@ -394,7 +395,7 @@ class DaryJSolarState {
     } catch (e) {}
   }
 
-  updateStock(itemId, delta, reason = 'Manual stock adjustment') {
+  updateStock(itemId, delta, reason = 'Manual stock adjustment', meta = null) {
     const inv = this.getInventory();
     const item = inv.find(i => i.id === itemId);
     if (item) {
@@ -409,6 +410,13 @@ class DaryJSolarState {
           newStock: item.stock,
           reason
         });
+        if (actualDelta < 0) {
+          this.allocateFromBatches(itemId, Math.abs(actualDelta), {
+            orderId: meta && meta.orderId ? meta.orderId : null,
+            clientName: meta && meta.clientName ? meta.clientName : reason,
+            itemName: item.name
+          });
+        }
       }
       this.saveInventory(inv);
       return item.stock;
@@ -604,11 +612,14 @@ class DaryJSolarState {
       ]
     };
 
-    // Deduct stock from inventory
+    // Deduct stock from inventory (and FIFO from batches)
     if (newOrder.bom && Array.isArray(newOrder.bom)) {
       newOrder.bom.forEach(b => {
         if (b.itemId) {
-          this.updateStock(b.itemId, -(b.qty || 1), `Order ${orderId} BOM allocation`);
+          this.updateStock(b.itemId, -(b.qty || 1), `Order ${orderId} BOM allocation`, {
+            orderId,
+            clientName: newOrder.clientName
+          });
         }
       });
     }
@@ -874,6 +885,146 @@ class DaryJSolarState {
     } catch (e) {}
   }
 
+  // --- Inventory Batches (Lot / Shipment Tracking) ---
+  getBatches() {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY_BATCHES);
+      if (stored) return JSON.parse(stored);
+    } catch (e) {}
+
+    const seed = [
+      {
+        id: 'BCH-2610-01',
+        batchName: 'Q4 Apapa Container #12',
+        supplier: 'Felicity / Jinko Solar Direct',
+        purchaseDate: '2026-10-05',
+        deliveryDate: '2026-10-15',
+        status: 'Delivered',
+        notes: 'Main Q4 hybrid inverters, lithium packs & 550W panels shipment.',
+        items: [
+          { itemId: 'inv-35kva', sku: 'DJS-INV-3524', name: '3.5kVA / 24V MPPT Pure Sine Hybrid Inverter', qtyPurchased: 6, qtyRemaining: 5, unitCost: 460000 },
+          { itemId: 'inv-50kva', sku: 'DJS-INV-5048', name: '5.0kVA / 48V MPPT Hybrid Solar Inverter', qtyPurchased: 7, qtyRemaining: 7, unitCost: 690000 },
+          { itemId: 'inv-100kva', sku: 'DJS-INV-10048', name: '10.0kVA / 48V High-Yield Commercial Inverter', qtyPurchased: 4, qtyRemaining: 3, unitCost: 1600000 },
+          { itemId: 'bat-512kwh', sku: 'DJS-BAT-512', name: '5.12kWh / 51.2V 100Ah LiFePO4 Lithium Wallpack', qtyPurchased: 5, qtyRemaining: 4, unitCost: 1350000 },
+          { itemId: 'bat-1024kwh', sku: 'DJS-BAT-1024', name: '10.24kWh / 51.2V 200Ah High-Density LiFePO4 Battery', qtyPurchased: 3, qtyRemaining: 2, unitCost: 2550000 },
+          { itemId: 'pv-550w', sku: 'DJS-PV-550M', name: '550W Tier-1 Monocrystalline PV Solar Panel', qtyPurchased: 54, qtyRemaining: 38, unitCost: 98000 },
+          { itemId: 'bos-cables', sku: 'DJS-BOS-KIT', name: 'Balance of System: DC Breakers, SPD & 16mm Cables Kit', qtyPurchased: 17, qtyRemaining: 14, unitCost: 195000 }
+        ],
+        allocations: [
+          { date: '2026-10-24 14:15', orderId: 'DJS-8790', clientName: 'Dr. Amina Bello', itemId: 'inv-100kva', itemName: '10.0kVA / 48V High-Yield Commercial Inverter', qty: 1, unitCost: 1600000 },
+          { date: '2026-10-24 14:15', orderId: 'DJS-8790', clientName: 'Dr. Amina Bello', itemId: 'bat-1024kwh', itemName: '10.24kWh / 51.2V 200Ah High-Density LiFePO4 Battery', qty: 1, unitCost: 2550000 },
+          { date: '2026-10-24 14:15', orderId: 'DJS-8790', clientName: 'Dr. Amina Bello', itemId: 'pv-550w', itemName: '550W Tier-1 Monocrystalline PV Solar Panel', qty: 12, unitCost: 98000 },
+          { date: '2026-10-24 14:15', orderId: 'DJS-8790', clientName: 'Dr. Amina Bello', itemId: 'bos-cables', itemName: 'Balance of System: DC Breakers, SPD & 16mm Cables Kit', qty: 2, unitCost: 195000 },
+          { date: '2026-11-16 10:30', orderId: 'DJS-8842', clientName: 'Chief Adeleke Babatunde', itemId: 'inv-35kva', itemName: '3.5kVA / 24V MPPT Pure Sine Hybrid Inverter', qty: 1, unitCost: 460000 },
+          { date: '2026-11-16 10:30', orderId: 'DJS-8842', clientName: 'Chief Adeleke Babatunde', itemId: 'bat-512kwh', itemName: '5.12kWh / 51.2V 100Ah LiFePO4 Lithium Wallpack', qty: 1, unitCost: 1350000 },
+          { date: '2026-11-16 10:30', orderId: 'DJS-8842', clientName: 'Chief Adeleke Babatunde', itemId: 'pv-550w', itemName: '550W Tier-1 Monocrystalline PV Solar Panel', qty: 4, unitCost: 98000 },
+          { date: '2026-11-16 10:30', orderId: 'DJS-8842', clientName: 'Chief Adeleke Babatunde', itemId: 'bos-cables', itemName: 'Balance of System: DC Breakers, SPD & 16mm Cables Kit', qty: 1, unitCost: 195000 }
+        ]
+      }
+    ];
+    try { localStorage.setItem(STORAGE_KEY_BATCHES, JSON.stringify(seed)); } catch (e) {}
+    return seed;
+  }
+
+  saveBatches(batches) {
+    try {
+      localStorage.setItem(STORAGE_KEY_BATCHES, JSON.stringify(batches));
+      this.notifyChange('batches_updated', { batches });
+    } catch (e) {}
+  }
+
+  createBatch(batchData) {
+    const batches = this.getBatches();
+    const inv = this.getInventory();
+    const batchId = 'BCH-' + new Date().toISOString().slice(2, 7).replace('-', '') + '-' + Math.floor(10 + Math.random() * 89);
+    const stamp = this.nowStamp();
+
+    const items = (batchData.items || []).map(line => {
+      const invItem = inv.find(i => i.id === line.itemId);
+      const qty = Math.max(1, Number(line.qty) || 1);
+      const unitCost = Number(line.unitCost) || (invItem ? invItem.costPrice : 0);
+
+      if (invItem) {
+        const prevStock = invItem.stock;
+        invItem.stock = prevStock + qty;
+        invItem.stockHistory = invItem.stockHistory || [];
+        invItem.stockHistory.unshift({
+          date: stamp,
+          delta: qty,
+          newStock: invItem.stock,
+          reason: `Batch ${batchId}: ${batchData.batchName}`
+        });
+        if (unitCost > 0 && unitCost !== Number(invItem.costPrice)) {
+          invItem.costPrice = unitCost;
+          invItem.priceHistory = invItem.priceHistory || [];
+          invItem.priceHistory.unshift({
+            date: stamp,
+            costPrice: unitCost,
+            unitPrice: invItem.unitPrice,
+            note: `Updated from Batch ${batchId}`
+          });
+        }
+      }
+
+      return {
+        itemId: line.itemId,
+        sku: invItem ? invItem.sku : '',
+        name: invItem ? invItem.name : line.itemId,
+        qtyPurchased: qty,
+        qtyRemaining: qty,
+        unitCost
+      };
+    });
+
+    this.saveInventory(inv);
+
+    const newBatch = {
+      id: batchId,
+      batchName: batchData.batchName || `Batch ${batchId}`,
+      supplier: batchData.supplier || 'Direct Supplier',
+      purchaseDate: batchData.purchaseDate || new Date().toISOString().split('T')[0],
+      deliveryDate: batchData.deliveryDate || new Date().toISOString().split('T')[0],
+      status: batchData.status || 'Delivered',
+      notes: batchData.notes || '',
+      items,
+      allocations: []
+    };
+
+    batches.unshift(newBatch);
+    this.saveBatches(batches);
+    return newBatch;
+  }
+
+  allocateFromBatches(itemId, qtyNeeded, meta = {}) {
+    const batches = this.getBatches();
+    // FIFO: oldest batches first (reverse order of unshift)
+    let remainingToTake = qtyNeeded;
+    const stamp = this.nowStamp();
+
+    for (let i = batches.length - 1; i >= 0 && remainingToTake > 0; i--) {
+      const batch = batches[i];
+      const line = (batch.items || []).find(it => it.itemId === itemId && it.qtyRemaining > 0);
+      if (!line) continue;
+
+      const take = Math.min(line.qtyRemaining, remainingToTake);
+      line.qtyRemaining -= take;
+      remainingToTake -= take;
+
+      batch.allocations = batch.allocations || [];
+      batch.allocations.unshift({
+        date: stamp,
+        orderId: meta.orderId || null,
+        clientName: meta.clientName || 'Stock Deduction',
+        itemId,
+        itemName: meta.itemName || line.name,
+        qty: take,
+        unitCost: line.unitCost || 0
+      });
+    }
+
+    this.saveBatches(batches);
+  }
+
   // --- JSON Database Export / Import / Seed ---
   exportDatabaseJSON() {
     let storedClients = [];
@@ -886,6 +1037,7 @@ class DaryJSolarState {
       version: '3.0',
       exportedAt: new Date().toISOString(),
       inventory: this.getInventory(),
+      batches: this.getBatches(),
       orders: this.getOrders(),
       clients: storedClients,
       expenses: this.getExpenses(),
@@ -897,6 +1049,7 @@ class DaryJSolarState {
     if (!db || typeof db !== 'object') return false;
     try {
       if (Array.isArray(db.inventory)) localStorage.setItem(STORAGE_KEY_INVENTORY, JSON.stringify(db.inventory));
+      if (Array.isArray(db.batches)) localStorage.setItem(STORAGE_KEY_BATCHES, JSON.stringify(db.batches));
       if (Array.isArray(db.orders)) localStorage.setItem(STORAGE_KEY_ORDERS, JSON.stringify(db.orders));
       if (Array.isArray(db.clients)) localStorage.setItem(STORAGE_KEY_CLIENTS, JSON.stringify(db.clients));
       if (Array.isArray(db.expenses)) localStorage.setItem(STORAGE_KEY_EXPENSES, JSON.stringify(db.expenses));
@@ -917,8 +1070,11 @@ class DaryJSolarState {
       const db = await res.json();
       if (db && Array.isArray(db.inventory) && db.inventory.length) {
         localStorage.setItem(STORAGE_KEY_INVENTORY, JSON.stringify(db.inventory));
-        this.notifyChange('database_seeded', { source: url });
       }
+      if (db && Array.isArray(db.batches) && db.batches.length && !localStorage.getItem(STORAGE_KEY_BATCHES)) {
+        localStorage.setItem(STORAGE_KEY_BATCHES, JSON.stringify(db.batches));
+      }
+      this.notifyChange('database_seeded', { source: url });
     } catch (e) {}
   }
 

@@ -524,6 +524,10 @@
             </select>
           </div>
           <div class="flex items-center gap-2">
+            <button onclick="openBatchModal()" class="px-3.5 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 font-bold text-xs flex items-center gap-1.5">
+              <i data-lucide="layers" class="w-4 h-4"></i>
+              <span>Receive Batch</span>
+            </button>
             <button onclick="openInventoryModal()" class="px-3.5 py-2 rounded-xl bg-[#F59E0B] hover:bg-[#E28C1A] text-[#0A1E3A] font-extrabold text-xs flex items-center gap-1.5">
               <i data-lucide="plus" class="w-4 h-4"></i>
               <span>Add SKU</span>
@@ -550,6 +554,41 @@
               </tr>
             </thead>
             <tbody id="inventoryTableBody" class="divide-y divide-slate-800 text-slate-200"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Inventory Batches & Shipment Lots -->
+      <div class="bg-slate-900 rounded-2xl border border-slate-800 p-5 space-y-4">
+        <div class="space-y-3">
+          <div class="flex items-baseline gap-3 min-w-0 pb-2.5 border-b border-slate-800">
+            <h3 class="text-sm font-bold text-white font-brand whitespace-nowrap shrink-0">Inventory Batches &amp; Shipment Lots</h3>
+            <span class="text-slate-600 shrink-0">|</span>
+            <p class="text-[11px] text-slate-400 whitespace-nowrap truncate">Track grouped purchases, staggered delivery dates, remaining lot stock, and FIFO sales allocations.</p>
+          </div>
+          <div class="flex justify-end pb-4 border-b border-slate-800">
+            <button onclick="openBatchModal()" class="px-3.5 py-2 rounded-xl bg-[#F59E0B] hover:bg-[#E28C1A] text-[#0A1E3A] font-extrabold text-xs flex items-center gap-1.5">
+              <i data-lucide="layers" class="w-4 h-4"></i>
+              <span>Log New Batch</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead>
+              <tr class="bg-slate-800/80 text-slate-200 border-b border-slate-700 uppercase tracking-wider text-[11px] font-extrabold whitespace-nowrap">
+                <th class="py-3 px-3">Batch ID &amp; Name</th>
+                <th class="py-3 px-3">Supplier</th>
+                <th class="py-3 px-3">Purchase Date</th>
+                <th class="py-3 px-3">Delivery Date</th>
+                <th class="py-3 px-3">Status</th>
+                <th class="py-3 px-3 text-center">Remaining / Bought</th>
+                <th class="py-3 px-3 text-center">Sold</th>
+                <th class="py-3 px-3 text-right">Breakdown</th>
+              </tr>
+            </thead>
+            <tbody id="batchesTableBody" class="divide-y divide-slate-800 text-slate-200"></tbody>
           </table>
         </div>
       </div>
@@ -944,6 +983,75 @@
         <button onclick="closeModal('inventoryHistoryModal')" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
       <div id="invHistBody" class="space-y-5 text-xs"></div>
+    </div>
+  </div>
+
+  <!-- 8. RECEIVE BATCH MODAL -->
+  <div id="batchModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <h3 class="text-base font-black font-brand text-white">Receive Inventory Batch / Shipment</h3>
+        <button onclick="closeModal('batchModal')" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <form onsubmit="submitBatchForm(event)" class="space-y-3 text-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-400 font-bold mb-1">Batch Name / Reference *</label>
+            <input id="bchName" required type="text" placeholder="e.g. Apapa Container #15" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white" />
+          </div>
+          <div>
+            <label class="block text-slate-400 font-bold mb-1">Supplier *</label>
+            <input id="bchSupplier" required type="text" placeholder="e.g. Felicity Solar Direct" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white" />
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-slate-400 font-bold mb-1">Purchase Date *</label>
+            <input id="bchPurchaseDate" required type="date" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white" />
+          </div>
+          <div>
+            <label class="block text-slate-400 font-bold mb-1">Delivery Date *</label>
+            <input id="bchDeliveryDate" required type="date" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white" />
+          </div>
+          <div>
+            <label class="block text-slate-400 font-bold mb-1">Delivery Status *</label>
+            <select id="bchStatus" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white">
+              <option value="Delivered">Delivered</option>
+              <option value="Partial Delivery">Partial Delivery</option>
+              <option value="In Transit">In Transit</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="block text-slate-400 font-bold">Batch Items *</label>
+            <button type="button" onclick="addBatchItemRow()" class="text-[#FBBF24] font-bold hover:underline">+ Add Item Row</button>
+          </div>
+          <div id="batchItemsContainer" class="space-y-2"></div>
+        </div>
+        <div>
+          <label class="block text-slate-400 font-bold mb-1">Notes</label>
+          <input id="bchNotes" type="text" placeholder="Shipping / customs / split delivery notes..." class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white" />
+        </div>
+        <div class="pt-3 flex justify-end gap-2">
+          <button type="button" onclick="closeModal('batchModal')" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-bold">Cancel</button>
+          <button type="submit" class="px-4 py-2 rounded-xl bg-[#F59E0B] text-[#0A1E3A] font-extrabold">Save Batch &amp; Update Stock</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 9. BATCH DETAIL MODAL -->
+  <div id="batchDetailModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-2xl p-6 space-y-5 max-h-[90vh] overflow-y-auto custom-scrollbar">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div class="min-w-0">
+          <span id="bchDetId" class="font-mono text-xs font-bold text-[#FBBF24]">BCH-0000</span>
+          <h3 id="bchDetName" class="text-base font-black font-brand text-white truncate">Batch Details</h3>
+        </div>
+        <button onclick="closeModal('batchDetailModal')" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div id="bchDetBody" class="space-y-5 text-xs"></div>
     </div>
   </div>
 
@@ -1381,6 +1489,44 @@
           </div>
         `;
       }).join('');
+
+      renderBatchesTable();
+    }
+
+    function renderBatchesTable() {
+      const batches = window.daryjState.getBatches();
+      const body = document.getElementById('batchesTableBody');
+      if (!body) return;
+
+      if (!batches.length) {
+        body.innerHTML = '<tr><td colspan="8" class="py-6 text-center text-slate-400">No inventory batches recorded yet.</td></tr>';
+        return;
+      }
+
+      body.innerHTML = batches.map(b => {
+        const totalBought = (b.items || []).reduce((s, it) => s + (Number(it.qtyPurchased) || 0), 0);
+        const totalRem = (b.items || []).reduce((s, it) => s + (Number(it.qtyRemaining) || 0), 0);
+        const totalSold = Math.max(0, totalBought - totalRem);
+        const statusColor = b.status === 'Delivered' ? 'text-emerald-400' : (b.status === 'Partial Delivery' ? 'text-amber-400' : 'text-blue-400');
+
+        return `
+          <tr class="hover:bg-slate-800/40 cursor-pointer transition-colors" onclick="openBatchDetail('${b.id}')">
+            <td class="py-3 px-3">
+              <div class="font-bold text-white hover:text-[#FBBF24]">${b.batchName}</div>
+              <div class="text-[10px] font-mono text-[#FBBF24]">${b.id} · ${(b.items || []).length} SKUs</div>
+            </td>
+            <td class="py-3 px-3 text-slate-300">${b.supplier}</td>
+            <td class="py-3 px-3 font-mono text-slate-300">${b.purchaseDate}</td>
+            <td class="py-3 px-3 font-mono text-slate-300">${b.deliveryDate}</td>
+            <td class="py-3 px-3 font-bold ${statusColor}">${b.status}</td>
+            <td class="py-3 px-3 text-center font-bold text-white">${totalRem} / ${totalBought}</td>
+            <td class="py-3 px-3 text-center font-bold text-amber-400">${totalSold}</td>
+            <td class="py-3 px-3 text-right">
+              <button onclick="event.stopPropagation(); openBatchDetail('${b.id}')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-[10px]">Inspect</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
     }
 
     // =========================================================
@@ -1429,6 +1575,44 @@
                 <button onclick="openInventoryHistory('${item.id}')" class="px-2.5 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold text-[10px]">History</button>
                 <button onclick="openInventoryModal('${item.id}')" class="px-2.5 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-[10px]">Edit</button>
               </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      renderBatchesTable();
+    }
+
+    function renderBatchesTable() {
+      const batches = window.daryjState.getBatches();
+      const body = document.getElementById('batchesTableBody');
+      if (!body) return;
+
+      if (!batches.length) {
+        body.innerHTML = '<tr><td colspan="8" class="py-6 text-center text-slate-400">No inventory batches recorded yet.</td></tr>';
+        return;
+      }
+
+      body.innerHTML = batches.map(b => {
+        const totalBought = (b.items || []).reduce((s, it) => s + (Number(it.qtyPurchased) || 0), 0);
+        const totalRem = (b.items || []).reduce((s, it) => s + (Number(it.qtyRemaining) || 0), 0);
+        const totalSold = Math.max(0, totalBought - totalRem);
+        const statusColor = b.status === 'Delivered' ? 'text-emerald-400' : (b.status === 'Partial Delivery' ? 'text-amber-400' : 'text-blue-400');
+
+        return `
+          <tr class="hover:bg-slate-800/40 cursor-pointer transition-colors" onclick="openBatchDetail('${b.id}')">
+            <td class="py-3 px-3">
+              <div class="font-bold text-white hover:text-[#FBBF24]">${b.batchName}</div>
+              <div class="text-[10px] font-mono text-[#FBBF24]">${b.id} · ${(b.items || []).length} SKUs</div>
+            </td>
+            <td class="py-3 px-3 text-slate-300">${b.supplier}</td>
+            <td class="py-3 px-3 font-mono text-slate-300">${b.purchaseDate}</td>
+            <td class="py-3 px-3 font-mono text-slate-300">${b.deliveryDate}</td>
+            <td class="py-3 px-3 font-bold ${statusColor}">${b.status}</td>
+            <td class="py-3 px-3 text-center font-bold text-white">${totalRem} / ${totalBought}</td>
+            <td class="py-3 px-3 text-center font-bold text-amber-400">${totalSold}</td>
+            <td class="py-3 px-3 text-right">
+              <button onclick="event.stopPropagation(); openBatchDetail('${b.id}')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-[10px]">Inspect</button>
             </td>
           </tr>
         `;
@@ -1554,6 +1738,44 @@
           </div>
         `;
       }).join('');
+
+      renderBatchesTable();
+    }
+
+    function renderBatchesTable() {
+      const batches = window.daryjState.getBatches();
+      const body = document.getElementById('batchesTableBody');
+      if (!body) return;
+
+      if (!batches.length) {
+        body.innerHTML = '<tr><td colspan="8" class="py-6 text-center text-slate-400">No inventory batches recorded yet.</td></tr>';
+        return;
+      }
+
+      body.innerHTML = batches.map(b => {
+        const totalBought = (b.items || []).reduce((s, it) => s + (Number(it.qtyPurchased) || 0), 0);
+        const totalRem = (b.items || []).reduce((s, it) => s + (Number(it.qtyRemaining) || 0), 0);
+        const totalSold = Math.max(0, totalBought - totalRem);
+        const statusColor = b.status === 'Delivered' ? 'text-emerald-400' : (b.status === 'Partial Delivery' ? 'text-amber-400' : 'text-blue-400');
+
+        return `
+          <tr class="hover:bg-slate-800/40 cursor-pointer transition-colors" onclick="openBatchDetail('${b.id}')">
+            <td class="py-3 px-3">
+              <div class="font-bold text-white hover:text-[#FBBF24]">${b.batchName}</div>
+              <div class="text-[10px] font-mono text-[#FBBF24]">${b.id} · ${(b.items || []).length} SKUs</div>
+            </td>
+            <td class="py-3 px-3 text-slate-300">${b.supplier}</td>
+            <td class="py-3 px-3 font-mono text-slate-300">${b.purchaseDate}</td>
+            <td class="py-3 px-3 font-mono text-slate-300">${b.deliveryDate}</td>
+            <td class="py-3 px-3 font-bold ${statusColor}">${b.status}</td>
+            <td class="py-3 px-3 text-center font-bold text-white">${totalRem} / ${totalBought}</td>
+            <td class="py-3 px-3 text-center font-bold text-amber-400">${totalSold}</td>
+            <td class="py-3 px-3 text-right">
+              <button onclick="event.stopPropagation(); openBatchDetail('${b.id}')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-[10px]">Inspect</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
     }
 
     // =========================================================
@@ -1637,6 +1859,159 @@
       `;
 
       openModal('inventoryHistoryModal');
+    }
+
+    function openBatchModal() {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('bchPurchaseDate').value = today;
+      document.getElementById('bchDeliveryDate').value = today;
+      document.getElementById('batchItemsContainer').innerHTML = '';
+      addBatchItemRow();
+      openModal('batchModal');
+    }
+
+    function addBatchItemRow() {
+      const inv = window.daryjState.getInventory();
+      const opts = inv.map(i => `<option value="${i.id}" data-cost="${i.costPrice || 0}">${i.sku} — ${i.name}</option>`).join('');
+      const row = document.createElement('div');
+      row.className = 'grid grid-cols-12 gap-2 items-center batch-item-row';
+      const defaultCost = inv[0] ? (inv[0].costPrice || 0) : 0;
+      row.innerHTML = `
+        <select onchange="this.parentElement.querySelector('.bch-cost').value = this.selectedOptions[0].dataset.cost || 0" class="col-span-6 px-2.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white bch-sku">${opts}</select>
+        <input type="number" min="1" value="5" placeholder="Qty" class="col-span-2 px-2.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white bch-qty" />
+        <input type="number" min="0" value="${defaultCost}" placeholder="Unit Cost" class="col-span-3 px-2.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white bch-cost" />
+        <button type="button" onclick="this.parentElement.remove()" class="col-span-1 py-2 rounded-xl bg-slate-800 hover:bg-rose-700 text-slate-300 hover:text-white font-bold text-center">×</button>
+      `;
+      document.getElementById('batchItemsContainer').appendChild(row);
+    }
+
+    function submitBatchForm(e) {
+      e.preventDefault();
+      const rows = Array.from(document.querySelectorAll('#batchItemsContainer .batch-item-row'));
+      const items = rows.map(r => ({
+        itemId: r.querySelector('.bch-sku').value,
+        qty: Number(r.querySelector('.bch-qty').value) || 1,
+        unitCost: Number(r.querySelector('.bch-cost').value) || 0
+      })).filter(x => x.itemId && x.qty > 0);
+
+      if (!items.length) {
+        alert('Add at least one item to the batch.');
+        return;
+      }
+
+      window.daryjState.createBatch({
+        batchName: document.getElementById('bchName').value.trim(),
+        supplier: document.getElementById('bchSupplier').value.trim(),
+        purchaseDate: document.getElementById('bchPurchaseDate').value,
+        deliveryDate: document.getElementById('bchDeliveryDate').value,
+        status: document.getElementById('bchStatus').value,
+        notes: document.getElementById('bchNotes').value.trim(),
+        items
+      });
+
+      closeModal('batchModal');
+      e.target.reset();
+      renderAdminDashboard();
+    }
+
+    function openBatchDetail(batchId) {
+      const b = window.daryjState.getBatches().find(x => x.id === batchId);
+      if (!b) return;
+
+      document.getElementById('bchDetId').textContent = `${b.id} · ${b.status}`;
+      document.getElementById('bchDetName').textContent = b.batchName;
+
+      const totalBatchCost = (b.items || []).reduce((s, it) => s + (Number(it.qtyPurchased) * Number(it.unitCost || 0)), 0);
+
+      const itemRows = (b.items || []).map(it => {
+        const sold = Math.max(0, (it.qtyPurchased || 0) - (it.qtyRemaining || 0));
+        return `
+          <tr class="hover:bg-slate-800/40">
+            <td class="py-2 px-3">
+              <div class="font-semibold text-white">${it.name}</div>
+              <div class="text-[10px] font-mono text-slate-400">${it.sku || ''}</div>
+            </td>
+            <td class="py-2 px-3 text-center text-slate-200 font-bold">${it.qtyPurchased}</td>
+            <td class="py-2 px-3 text-center text-amber-400 font-bold">${sold}</td>
+            <td class="py-2 px-3 text-center text-emerald-400 font-black">${it.qtyRemaining}</td>
+            <td class="py-2 px-3 text-slate-300">${fmtNaira(it.unitCost)}</td>
+          </tr>
+        `;
+      }).join('');
+
+      const allocRows = (b.allocations || []).map(a => `
+        <tr class="hover:bg-slate-800/40">
+          <td class="py-2 px-3 font-mono text-slate-300 whitespace-nowrap">${a.date}</td>
+          <td class="py-2 px-3">
+            ${a.orderId
+              ? `<button onclick="closeModal('batchDetailModal'); openOrderDetail('${a.orderId}')" class="font-mono font-bold text-[#FBBF24] hover:underline">${a.orderId}</button>`
+              : '<span class="text-slate-400">Manual</span>'}
+          </td>
+          <td class="py-2 px-3 text-white font-semibold">${a.clientName}</td>
+          <td class="py-2 px-3 text-slate-300">${a.itemName}</td>
+          <td class="py-2 px-3 font-bold text-rose-400 text-center">-${a.qty}</td>
+        </tr>
+      `).join('');
+
+      document.getElementById('bchDetBody').innerHTML = `
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 rounded-xl bg-slate-950 border border-slate-800">
+          <div>
+            <span class="text-[10px] text-slate-400 uppercase font-bold block">Supplier</span>
+            <strong class="text-white">${b.supplier}</strong>
+          </div>
+          <div>
+            <span class="text-[10px] text-slate-400 uppercase font-bold block">Purchased</span>
+            <strong class="text-slate-200 font-mono">${b.purchaseDate}</strong>
+          </div>
+          <div>
+            <span class="text-[10px] text-slate-400 uppercase font-bold block">Delivered</span>
+            <strong class="text-slate-200 font-mono">${b.deliveryDate}</strong>
+          </div>
+          <div>
+            <span class="text-[10px] text-slate-400 uppercase font-bold block">Batch Cost</span>
+            <strong class="text-[#FBBF24]">${fmtNaira(totalBatchCost)}</strong>
+          </div>
+        </div>
+        ${b.notes ? `<p class="text-slate-300 bg-slate-950 p-3 rounded-xl border border-slate-800"><strong>Notes:</strong> ${b.notes}</p>` : ''}
+
+        <div>
+          <h4 class="font-bold text-white mb-2 pb-1.5 border-b border-slate-800">Batch Items &amp; Remaining Quantities</h4>
+          <div class="overflow-x-auto rounded-xl border border-slate-800">
+            <table class="w-full text-left text-xs">
+              <thead>
+                <tr class="bg-slate-800/80 text-slate-200 border-b border-slate-700 uppercase tracking-wider text-[10px] font-extrabold whitespace-nowrap">
+                  <th class="py-2 px-3">Item</th>
+                  <th class="py-2 px-3 text-center">Bought</th>
+                  <th class="py-2 px-3 text-center">Sold</th>
+                  <th class="py-2 px-3 text-center">Remaining</th>
+                  <th class="py-2 px-3">Unit Cost</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-800 bg-slate-950">${itemRows}</tbody>
+            </table>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="font-bold text-white mb-2 pb-1.5 border-b border-slate-800">How This Batch Was Sold / Allocated (${(b.allocations || []).length})</h4>
+          <div class="overflow-x-auto rounded-xl border border-slate-800">
+            <table class="w-full text-left text-xs">
+              <thead>
+                <tr class="bg-slate-800/80 text-slate-200 border-b border-slate-700 uppercase tracking-wider text-[10px] font-extrabold whitespace-nowrap">
+                  <th class="py-2 px-3">Date</th>
+                  <th class="py-2 px-3">Order</th>
+                  <th class="py-2 px-3">Client / Reason</th>
+                  <th class="py-2 px-3">Item</th>
+                  <th class="py-2 px-3 text-center">Qty</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-800 bg-slate-950">${allocRows || '<tr><td colspan="5" class="py-4 text-center text-slate-500">No items from this batch have been sold yet.</td></tr>'}</tbody>
+            </table>
+          </div>
+        </div>
+      `;
+
+      openModal('batchDetailModal');
     }
 
     function exportDatabase() {

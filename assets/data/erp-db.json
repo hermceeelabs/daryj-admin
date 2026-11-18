@@ -128,5 +128,35 @@
   "orders": [],
   "clients": [],
   "expenses": [],
-  "engineers": []
+  "engineers": [],
+  "batches": [
+    {
+      "id": "BCH-2610-01",
+      "batchName": "Q4 Apapa Container #12",
+      "supplier": "Felicity / Jinko Solar Direct",
+      "purchaseDate": "2026-10-05",
+      "deliveryDate": "2026-10-15",
+      "status": "Delivered",
+      "notes": "Main Q4 hybrid inverters, lithium packs & 550W panels shipment.",
+      "items": [
+        { "itemId": "inv-35kva", "sku": "DJS-INV-3524", "name": "3.5kVA / 24V MPPT Pure Sine Hybrid Inverter", "qtyPurchased": 6, "qtyRemaining": 5, "unitCost": 460000 },
+        { "itemId": "inv-50kva", "sku": "DJS-INV-5048", "name": "5.0kVA / 48V MPPT Hybrid Solar Inverter", "qtyPurchased": 7, "qtyRemaining": 7, "unitCost": 690000 },
+        { "itemId": "inv-100kva", "sku": "DJS-INV-10048", "name": "10.0kVA / 48V High-Yield Commercial Inverter", "qtyPurchased": 4, "qtyRemaining": 3, "unitCost": 1600000 },
+        { "itemId": "bat-512kwh", "sku": "DJS-BAT-512", "name": "5.12kWh / 51.2V 100Ah LiFePO4 Lithium Wallpack", "qtyPurchased": 5, "qtyRemaining": 4, "unitCost": 1350000 },
+        { "itemId": "bat-1024kwh", "sku": "DJS-BAT-1024", "name": "10.24kWh / 51.2V 200Ah High-Density LiFePO4 Battery", "qtyPurchased": 3, "qtyRemaining": 2, "unitCost": 2550000 },
+        { "itemId": "pv-550w", "sku": "DJS-PV-550M", "name": "550W Tier-1 Monocrystalline PV Solar Panel", "qtyPurchased": 54, "qtyRemaining": 38, "unitCost": 98000 },
+        { "itemId": "bos-cables", "sku": "DJS-BOS-KIT", "name": "Balance of System: DC Breakers, SPD & 16mm Cables Kit", "qtyPurchased": 17, "qtyRemaining": 14, "unitCost": 195000 }
+      ],
+      "allocations": [
+        { "date": "2026-10-24 14:15", "orderId": "DJS-8790", "clientName": "Dr. Amina Bello", "itemId": "inv-100kva", "itemName": "10.0kVA / 48V High-Yield Commercial Inverter", "qty": 1, "unitCost": 1600000 },
+        { "date": "2026-10-24 14:15", "orderId": "DJS-8790", "clientName": "Dr. Amina Bello", "itemId": "bat-1024kwh", "itemName": "10.24kWh / 51.2V 200Ah High-Density LiFePO4 Battery", "qty": 1, "unitCost": 2550000 },
+        { "date": "2026-10-24 14:15", "orderId": "DJS-8790", "clientName": "Dr. Amina Bello", "itemId": "pv-550w", "itemName": "550W Tier-1 Monocrystalline PV Solar Panel", "qty": 12, "unitCost": 98000 },
+        { "date": "2026-10-24 14:15", "orderId": "DJS-8790", "clientName": "Dr. Amina Bello", "itemId": "bos-cables", "itemName": "Balance of System: DC Breakers, SPD & 16mm Cables Kit", "qty": 2, "unitCost": 195000 },
+        { "date": "2026-11-16 10:30", "orderId": "DJS-8842", "clientName": "Chief Adeleke Babatunde", "itemId": "inv-35kva", "itemName": "3.5kVA / 24V MPPT Pure Sine Hybrid Inverter", "qty": 1, "unitCost": 460000 },
+        { "date": "2026-11-16 10:30", "orderId": "DJS-8842", "clientName": "Chief Adeleke Babatunde", "itemId": "bat-512kwh", "itemName": "5.12kWh / 51.2V 100Ah LiFePO4 Lithium Wallpack", "qty": 1, "qtyRemaining": 4, "unitCost": 1350000 },
+        { "date": "2026-11-16 10:30", "orderId": "DJS-8842", "clientName": "Chief Adeleke Babatunde", "itemId": "pv-550w", "itemName": "550W Tier-1 Monocrystalline PV Solar Panel", "qty": 4, "unitCost": 98000 },
+        { "date": "2026-11-16 10:30", "orderId": "DJS-8842", "clientName": "Chief Adeleke Babatunde", "itemId": "bos-cables", "itemName": "Balance of System: DC Breakers, SPD & 16mm Cables Kit", "qty": 1, "unitCost": 195000 }
+      ]
+    }
+  ]
 }
