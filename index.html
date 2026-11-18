@@ -758,11 +758,14 @@
   <div id="expenseModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-md p-6 space-y-4">
       <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-        <h3 class="text-base font-black font-brand text-white">Log Expense</h3>
+        <div class="min-w-0">
+          <h3 id="expModalTitle" class="text-base font-black font-brand text-white">Log Expense</h3>
+          <p id="expModalSubtitle" class="hidden text-[11px] text-[#FBBF24] font-semibold truncate"></p>
+        </div>
         <button onclick="closeModal('expenseModal')" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
       <form onsubmit="submitExpense(event)" class="space-y-3 text-xs">
-        <div>
+        <div id="expScopeWrap">
           <label class="block text-slate-400 font-bold mb-1">Expense Scope *</label>
           <select id="expScope" onchange="toggleExpenseProjectSelect()" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white">
             <option value="general">General / Company Overhead</option>
@@ -1684,15 +1687,47 @@
       openModal('orderDetailModal');
     }
 
-    function openExpenseModal(scope = 'general', projectId = '') {
-      document.getElementById('expScope').value = scope;
+    function openExpenseModal(scope = '', projectId = '') {
       document.getElementById('expDate').value = new Date().toISOString().split('T')[0];
 
       const orders = window.daryjState.getOrders();
       const projSelect = document.getElementById('expProjectId');
       projSelect.innerHTML = orders.map(o => `<option value="${o.id}" ${o.id === projectId ? 'selected' : ''}>${o.id} — ${o.clientName}</option>`).join('');
 
-      toggleExpenseProjectSelect();
+      const scopeWrap = document.getElementById('expScopeWrap');
+      const projectWrap = document.getElementById('expProjectWrap');
+      const titleEl = document.getElementById('expModalTitle');
+      const subEl = document.getElementById('expModalSubtitle');
+
+      if (projectId) {
+        const target = orders.find(o => o.id === projectId);
+        document.getElementById('expScope').value = 'project';
+        projSelect.value = projectId;
+        scopeWrap.classList.add('hidden');
+        projectWrap.classList.add('hidden');
+        titleEl.textContent = 'Log Site Expense';
+        subEl.textContent = target ? `${target.id} — ${target.clientName}` : projectId;
+        subEl.classList.remove('hidden');
+      } else if (scope === 'project') {
+        document.getElementById('expScope').value = 'project';
+        scopeWrap.classList.add('hidden');
+        projectWrap.classList.remove('hidden');
+        titleEl.textContent = 'Log Project Expense';
+        subEl.classList.add('hidden');
+      } else if (scope === 'general') {
+        document.getElementById('expScope').value = 'general';
+        scopeWrap.classList.add('hidden');
+        projectWrap.classList.add('hidden');
+        titleEl.textContent = 'Log General Overhead Expense';
+        subEl.classList.add('hidden');
+      } else {
+        document.getElementById('expScope').value = 'general';
+        scopeWrap.classList.remove('hidden');
+        toggleExpenseProjectSelect();
+        titleEl.textContent = 'Log Expense';
+        subEl.classList.add('hidden');
+      }
+
       openModal('expenseModal');
     }
 
