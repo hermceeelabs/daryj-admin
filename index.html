@@ -314,6 +314,25 @@
     <!-- TAB 2: CLIENT ORDERS                                      -->
     <!-- ========================================================= -->
     <div id="tab-orders" class="tab-content hidden space-y-6">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800">
+          <span class="text-[11px] font-bold text-slate-400 uppercase">Total Orders</span>
+          <h3 id="ordStatCount" class="text-2xl font-black text-white font-brand mt-1">0</h3>
+        </div>
+        <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800">
+          <span class="text-[11px] font-bold text-slate-400 uppercase">Contracted Value</span>
+          <h3 id="ordStatTotal" class="text-2xl font-black text-[#FBBF24] font-brand mt-1">₦0</h3>
+        </div>
+        <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800">
+          <span class="text-[11px] font-bold text-slate-400 uppercase">Collected Cash</span>
+          <h3 id="ordStatPaid" class="text-2xl font-black text-emerald-400 font-brand mt-1">₦0</h3>
+        </div>
+        <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800">
+          <span class="text-[11px] font-bold text-slate-400 uppercase">Pending Balances</span>
+          <h3 id="ordStatDue" class="text-2xl font-black text-rose-400 font-brand mt-1">₦0</h3>
+        </div>
+      </div>
+
       <div class="bg-slate-900 rounded-2xl border border-slate-800 p-5 space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div class="flex flex-wrap items-center gap-2.5 flex-1 min-w-[240px]">
@@ -415,19 +434,39 @@
     <!-- TAB 4: PROJECT MANAGEMENT & STAGE CONTROL                 -->
     <!-- ========================================================= -->
     <div id="tab-projects" class="tab-content hidden space-y-6">
-      <div class="bg-slate-900 rounded-2xl border border-slate-800 p-4 space-y-3">
-        <div class="flex items-baseline gap-3 min-w-0 pb-2.5 border-b border-slate-800">
-          <h3 class="text-sm font-bold text-white font-brand whitespace-nowrap shrink-0">Site Installations &amp; Project P&amp;L</h3>
-          <span class="text-slate-600 shrink-0">|</span>
-          <p class="text-[11px] text-slate-400 whitespace-nowrap truncate">Track installation milestones, reassign engineers, log site expenses, and monitor project margin.</p>
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800">
+          <span class="text-[11px] font-bold text-slate-400 uppercase">Total Projects</span>
+          <h3 id="projStatCount" class="text-2xl font-black text-white font-brand mt-1">0</h3>
         </div>
-        <div class="flex items-center justify-end gap-2">
-          <select id="projectFilterSelect" onchange="renderProjectsTab()" class="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-200">
-            <option value="all">All Projects</option>
-            <option value="active">Active Sites (Stage 1-4)</option>
-            <option value="completed">Commissioned (Stage 5)</option>
-          </select>
+        <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800">
+          <span class="text-[11px] font-bold text-slate-400 uppercase">Project Revenue</span>
+          <h3 id="projStatRev" class="text-2xl font-black text-[#FBBF24] font-brand mt-1">₦0</h3>
         </div>
+        <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800">
+          <span class="text-[11px] font-bold text-slate-400 uppercase">Direct Site Costs</span>
+          <h3 id="projStatCost" class="text-2xl font-black text-amber-400 font-brand mt-1">₦0</h3>
+        </div>
+        <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800">
+          <span class="text-[11px] font-bold text-slate-400 uppercase">Project Net Profit</span>
+          <h3 id="projStatProfit" class="text-2xl font-black text-emerald-400 font-brand mt-1">₦0</h3>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-end gap-2.5">
+        <select id="projectFilterSelect" onchange="renderProjectsTab()" class="px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-200">
+          <option value="all">All Projects</option>
+          <option value="active">Active Sites (Stage 1-4)</option>
+          <option value="completed">Commissioned (Stage 5)</option>
+        </select>
+        <button onclick="openExpenseModal('project')" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 font-bold text-xs flex items-center gap-1.5">
+          <i data-lucide="receipt" class="w-4 h-4 text-amber-400"></i>
+          <span>Log Site Expense</span>
+        </button>
+        <button onclick="openNewOrderModal()" class="px-3.5 py-2 rounded-xl bg-[#F59E0B] hover:bg-[#E28C1A] text-[#0A1E3A] font-extrabold text-xs flex items-center gap-1.5">
+          <i data-lucide="plus" class="w-4 h-4"></i>
+          <span>New Project Order</span>
+        </button>
       </div>
 
       <div id="projectStageCards" class="grid grid-cols-1 xl:grid-cols-2 gap-5"></div>
@@ -615,6 +654,25 @@
     <!-- TAB 7: ENGINEER DISPATCH                                  -->
     <!-- ========================================================= -->
     <div id="tab-engineers" class="tab-content hidden space-y-6">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800">
+          <span class="text-[11px] font-bold text-slate-400 uppercase">Field Engineers</span>
+          <h3 id="engStatTotal" class="text-2xl font-black text-white font-brand mt-1">0</h3>
+        </div>
+        <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800">
+          <span class="text-[11px] font-bold text-slate-400 uppercase">Active Site Works</span>
+          <h3 id="engStatActive" class="text-2xl font-black text-[#FBBF24] font-brand mt-1">0</h3>
+        </div>
+        <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800">
+          <span class="text-[11px] font-bold text-slate-400 uppercase">Commissioned Sites</span>
+          <h3 id="engStatDone" class="text-2xl font-black text-emerald-400 font-brand mt-1">0</h3>
+        </div>
+        <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800">
+          <span class="text-[11px] font-bold text-slate-400 uppercase">Unassigned Orders</span>
+          <h3 id="engStatUnassigned" class="text-2xl font-black text-rose-400 font-brand mt-1">0</h3>
+        </div>
+      </div>
+
       <div id="engineersGrid" class="grid grid-cols-1 md:grid-cols-3 gap-5"></div>
     </div>
 
@@ -1082,6 +1140,17 @@
     // =========================================================
     function renderOrdersTab() {
       const orders = window.daryjState.getOrders();
+      let ordTotal = 0, ordPaid = 0, ordDue = 0;
+      orders.forEach(o => {
+        ordTotal += Number(o.totalAmount) || 0;
+        ordPaid += Number(o.amountPaid) || 0;
+        ordDue += Number(o.balanceDue) || 0;
+      });
+      document.getElementById('ordStatCount').textContent = orders.length;
+      document.getElementById('ordStatTotal').textContent = fmtNaira(ordTotal);
+      document.getElementById('ordStatPaid').textContent = fmtNaira(ordPaid);
+      document.getElementById('ordStatDue').textContent = fmtNaira(ordDue);
+
       const q = (document.getElementById('orderSearchInput')?.value || '').toLowerCase();
       const payFilter = document.getElementById('orderPaymentFilter')?.value || 'all';
       const stageFilter = document.getElementById('orderStageFilter')?.value || 'all';
@@ -1188,6 +1257,19 @@
     function renderProjectsTab() {
       const orders = window.daryjState.getOrders();
       const engineers = window.daryjState.getEngineers();
+      let pRev = 0, pCost = 0, pProfit = 0, pActive = 0;
+      orders.forEach(o => {
+        const fin = window.daryjState.getOrderFinancials(o);
+        pRev += fin.revenue;
+        pCost += fin.totalCost;
+        pProfit += fin.netProfit;
+        if (o.currentStage < 5) pActive++;
+      });
+      document.getElementById('projStatCount').textContent = `${orders.length} (${pActive} active)`;
+      document.getElementById('projStatRev').textContent = fmtNaira(pRev);
+      document.getElementById('projStatCost').textContent = fmtNaira(pCost);
+      document.getElementById('projStatProfit').textContent = fmtNaira(pProfit);
+
       const filter = document.getElementById('projectFilterSelect')?.value || 'all';
 
       const filtered = orders.filter(o =>
@@ -1388,6 +1470,14 @@
     function renderEngineersTab() {
       const engineers = window.daryjState.getEngineers();
       const orders = window.daryjState.getOrders();
+
+      const activeCount = orders.filter(o => o.currentStage < 5).length;
+      const doneCount = orders.filter(o => o.currentStage >= 5).length;
+      const unassignedCount = orders.filter(o => !o.assignedEngineer).length;
+      document.getElementById('engStatTotal').textContent = engineers.length;
+      document.getElementById('engStatActive').textContent = activeCount;
+      document.getElementById('engStatDone').textContent = doneCount;
+      document.getElementById('engStatUnassigned').textContent = unassignedCount;
 
       document.getElementById('engineersGrid').innerHTML = engineers.map(eng => {
         const assigned = orders.filter(o => o.assignedEngineer === eng.name);
