@@ -14,6 +14,7 @@
   <!-- Tailwind & Core Styles -->
   <link rel="stylesheet" href="assets/css/tailwind.min.css">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
   <style>
     body {
@@ -941,7 +942,17 @@
       sb.classList.toggle('flex');
     }
 
+    const VALID_TABS = ['dashboard', 'orders', 'clients', 'projects', 'inventory', 'financials', 'engineers'];
+
     function switchTab(tabId) {
+      if (!VALID_TABS.includes(tabId)) tabId = 'dashboard';
+      try {
+        localStorage.setItem('daryj_active_tab', tabId);
+        if (window.location.hash !== '#' + tabId) {
+          history.replaceState(null, '', '#' + tabId);
+        }
+      } catch (e) {}
+
       document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
       document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.classList.remove('bg-[#F59E0B]', 'text-[#0A1E3A]', 'shadow-md');
@@ -1720,13 +1731,159 @@
           </div>
         </div>
 
-        <div class="flex flex-wrap justify-end gap-2 pt-2 border-t border-slate-800">
-          ${ord.balanceDue > 0 ? `<button onclick="payOrderBalance('${ord.id}'); openOrderDetail('${ord.id}')" class="px-3.5 py-2 rounded-xl bg-emerald-600 text-white font-bold">Mark Balance Paid (${fmtNaira(ord.balanceDue)})</button>` : ''}
-          ${ord.currentStage < 5 ? `<button onclick="advanceStage('${ord.id}'); openOrderDetail('${ord.id}')" class="px-3.5 py-2 rounded-xl bg-[#F59E0B] text-[#0A1E3A] font-extrabold">Advance to Stage ${ord.currentStage + 1}</button>` : ''}
+        <div class="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-slate-800">
+          <div class="flex flex-wrap items-center gap-2">
+            <button onclick="downloadReceiptPDF('${ord.id}')" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs flex items-center gap-1.5">
+              <i data-lucide="file-down" class="w-3.5 h-3.5 text-[#FBBF24]"></i>
+              <span>PDF Receipt</span>
+            </button>
+            <button onclick="sendReceiptWhatsApp('${ord.id}')" class="px-3 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 font-bold text-xs flex items-center gap-1.5">
+              <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
+              <span>WhatsApp</span>
+            </button>
+            <button onclick="sendReceiptEmail('${ord.id}')" class="px-3 py-2 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 font-bold text-xs flex items-center gap-1.5">
+              <i data-lucide="mail" class="w-3.5 h-3.5"></i>
+              <span>Email</span>
+            </button>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            ${ord.balanceDue > 0 ? `<button onclick="payOrderBalance('${ord.id}'); openOrderDetail('${ord.id}')" class="px-3.5 py-2 rounded-xl bg-emerald-600 text-white font-bold">Mark Balance Paid (${fmtNaira(ord.balanceDue)})</button>` : ''}
+            ${ord.currentStage < 5 ? `<button onclick="advanceStage('${ord.id}'); openOrderDetail('${ord.id}')" class="px-3.5 py-2 rounded-xl bg-[#F59E0B] text-[#0A1E3A] font-extrabold">Advance to Stage ${ord.currentStage + 1}</button>` : ''}
+          </div>
         </div>
       `;
 
       openModal('orderDetailModal');
+    }
+
+    function formatNigeriaWhatsApp(phone) {
+      const digits = (phone || '').replace(/\D/g, '');
+      if (digits.startsWith('234')) return digits;
+      if (digits.startsWith('0')) return '234' + digits.slice(1);
+      return digits;
+    }
+
+    function buildReceiptText(ord) {
+      const bomLines = (ord.bom || []).map(b => `- ${b.name} (x${b.qty || 1})`).join('\n');
+      return [
+        `DARY J ELECTROMECH NIG LTD — OFFICIAL RECEIPT`,
+        `Order ID: ${ord.id}`,
+        `Date: ${(ord.date || '').split('T')[0]}`,
+        `Client: ${ord.clientName}`,
+        `Site: ${ord.installationAddress}`,
+        `Package: ${ord.packageTitle}`,
+        ``,
+        `Contract Value: NGN ${Math.round(ord.totalAmount).toLocaleString()}`,
+        `Amount Paid: NGN ${Math.round(ord.amountPaid).toLocaleString()}`,
+        `Balance Due: NGN ${Math.round(ord.balanceDue).toLocaleString()}`,
+        `Payment Method: ${ord.paymentMethod || 'Paystack'} (${ord.paymentRef || 'Verified'})`,
+        `Status: Stage ${ord.currentStage}/5 (${STAGE_NAMES[ord.currentStage]})`,
+        ``,
+        `Equipment Included:`,
+        bomLines
+      ].join('\n');
+    }
+
+    function downloadReceiptPDF(orderId) {
+      const ord = window.daryjState.getOrderById(orderId);
+      if (!ord) return;
+      if (!window.jspdf || !window.jspdf.jsPDF) {
+        alert('PDF library is still loading. Please try again in a moment.');
+        return;
+      }
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+      const naira = (n) => 'NGN ' + Math.round(Number(n) || 0).toLocaleString();
+
+      // Header band
+      doc.setFillColor(10, 30, 58);
+      doc.rect(0, 0, 595, 92, 'F');
+      doc.setTextColor(251, 191, 36);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(18);
+      doc.text('DARY J ELECTROMECH NIG LTD', 40, 40);
+      doc.setTextColor(226, 232, 240);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.text('Official Solar Engineering Payment Receipt', 40, 58);
+      doc.text(`Receipt #: ${ord.id}   |   Date: ${(ord.date || '').split('T')[0]}`, 40, 74);
+
+      // Client & Order Details
+      let y = 124;
+      doc.setTextColor(15, 23, 42);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.text('Client & Project Information', 40, y);
+      y += 18;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.text(`Client Name: ${ord.clientName}`, 40, y); y += 15;
+      doc.text(`Phone: ${ord.clientPhone || '—'}   |   Email: ${ord.clientEmail || '—'}`, 40, y); y += 15;
+      doc.text(`Installation Site: ${ord.installationAddress}`, 40, y); y += 15;
+      doc.text(`System Package: ${ord.packageTitle}`, 40, y); y += 15;
+      doc.text(`Assigned Engineer: ${ord.assignedEngineer || 'Unassigned'} (${ord.engineerPhone || ''})`, 40, y); y += 26;
+
+      // BOM Table
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.text('Allocated Bill of Materials', 40, y);
+      y += 14;
+      doc.setFillColor(241, 245, 249);
+      doc.rect(40, y, 515, 20, 'F');
+      doc.setFontSize(9);
+      doc.text('Component', 48, y + 13);
+      doc.text('Qty', 515, y + 13);
+      y += 28;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      (ord.bom || []).forEach(b => {
+        doc.text(String(b.name), 48, y);
+        doc.text(`x${b.qty || 1}`, 515, y);
+        y += 16;
+      });
+
+      y += 14;
+      doc.setDrawColor(203, 213, 225);
+      doc.line(40, y, 555, y);
+      y += 22;
+
+      // Payment Summary
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.text('Payment Summary', 40, y);
+      y += 18;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.text(`Contract Value:`, 40, y); doc.text(naira(ord.totalAmount), 420, y); y += 16;
+      doc.text(`Amount Paid:`, 40, y); doc.text(naira(ord.amountPaid), 420, y); y += 16;
+      doc.setFont('helvetica', 'bold');
+      doc.text(`Balance Due:`, 40, y); doc.text(naira(ord.balanceDue), 420, y); y += 18;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(100, 116, 139);
+      doc.text(`Payment Method: ${ord.paymentMethod || 'Paystack'}   |   Ref: ${ord.paymentRef || 'Verified'}`, 40, y);
+
+      doc.save(`DaryJ-Receipt-${ord.id}.pdf`);
+    }
+
+    function sendReceiptWhatsApp(orderId) {
+      const ord = window.daryjState.getOrderById(orderId);
+      if (!ord) return;
+      downloadReceiptPDF(orderId);
+      const waNum = formatNigeriaWhatsApp(ord.clientPhone);
+      const text = encodeURIComponent(buildReceiptText(ord) + '\n\n(PDF receipt downloaded — attach it here to send.)');
+      const url = waNum ? `https://wa.me/${waNum}?text=${text}` : `https://wa.me/?text=${text}`;
+      window.open(url, '_blank');
+    }
+
+    function sendReceiptEmail(orderId) {
+      const ord = window.daryjState.getOrderById(orderId);
+      if (!ord) return;
+      downloadReceiptPDF(orderId);
+      const subject = encodeURIComponent(`Dary J Electromech Payment Receipt — ${ord.id}`);
+      const body = encodeURIComponent(buildReceiptText(ord) + '\n\nPlease find your PDF receipt attached.');
+      window.location.href = `mailto:${encodeURIComponent(ord.clientEmail || '')}?subject=${subject}&body=${body}`;
     }
 
     function openExpenseModal(scope = '', projectId = '') {
@@ -1945,6 +2102,15 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       renderAdminDashboard();
+      const hashTab = (window.location.hash || '').replace('#', '').trim();
+      const savedTab = localStorage.getItem('daryj_active_tab');
+      const initialTab = VALID_TABS.includes(hashTab) ? hashTab : (VALID_TABS.includes(savedTab) ? savedTab : 'dashboard');
+      switchTab(initialTab);
+    });
+
+    window.addEventListener('hashchange', () => {
+      const hashTab = (window.location.hash || '').replace('#', '').trim();
+      if (VALID_TABS.includes(hashTab)) switchTab(hashTab);
     });
   </script>
 </body>
