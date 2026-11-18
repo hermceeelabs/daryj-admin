@@ -2755,14 +2755,11 @@
       ].join('\n');
     }
 
-    function downloadReceiptPDF(orderId) {
-      const ord = window.daryjState.getOrderById(orderId);
-      if (!ord) return;
+    function buildReceiptPDFDoc(ord) {
       if (!window.jspdf || !window.jspdf.jsPDF) {
         alert('PDF library is still loading. Please try again in a moment.');
-        return;
+        return null;
       }
-
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF({ unit: 'pt', format: 'a4' });
       const naira = (n) => 'NGN ' + Math.round(Number(n) || 0).toLocaleString();
@@ -2835,25 +2832,58 @@
       doc.setTextColor(100, 116, 139);
       doc.text(`Payment Method: ${ord.paymentMethod || 'Paystack'}   |   Ref: ${ord.paymentRef || 'Verified'}`, 40, y);
 
-      doc.save(`DaryJ-Receipt-${ord.id}.pdf`);
+      return doc;
     }
 
-    function sendReceiptWhatsApp(orderId) {
+    function downloadReceiptPDF(orderId) {
       const ord = window.daryjState.getOrderById(orderId);
       if (!ord) return;
+      const doc = buildReceiptPDFDoc(ord);
+      if (doc) doc.save(`DaryJ-Receipt-${ord.id}.pdf`);
+    }
+
+    async function tryNativeSharePDF(ord) {
+      const doc = buildReceiptPDFDoc(ord);
+      if (!doc) return false;
+      const blob = doc.output('blob');
+      const file = new File([blob], `DaryJ-Receipt-${ord.id}.pdf`, { type: 'application/pdf' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: `Dary J Receipt — ${ord.id}`,
+            text: buildReceiptText(ord)
+          });
+          return true;
+        } catch (err) {
+          if (err && err.name === 'AbortError') return true;
+        }
+      }
+      return false;
+    }
+
+    async function sendReceiptWhatsApp(orderId) {
+      const ord = window.daryjState.getOrderById(orderId);
+      if (!ord) return;
+      const shared = await tryNativeSharePDF(ord);
+      if (shared) return;
+      // Desktop fallback: download PDF + open WhatsApp chat
       downloadReceiptPDF(orderId);
       const waNum = formatNigeriaWhatsApp(ord.clientPhone);
-      const text = encodeURIComponent(buildReceiptText(ord) + '\n\n(PDF receipt downloaded — attach it here to send.)');
+      const text = encodeURIComponent(buildReceiptText(ord) + '\n\n(PDF receipt downloaded — drag & drop it into this chat to attach.)');
       const url = waNum ? `https://wa.me/${waNum}?text=${text}` : `https://wa.me/?text=${text}`;
       window.open(url, '_blank');
     }
 
-    function sendReceiptEmail(orderId) {
+    async function sendReceiptEmail(orderId) {
       const ord = window.daryjState.getOrderById(orderId);
       if (!ord) return;
+      const shared = await tryNativeSharePDF(ord);
+      if (shared) return;
+      // Desktop fallback: download PDF + open mail client
       downloadReceiptPDF(orderId);
       const subject = encodeURIComponent(`Dary J Electromech Payment Receipt — ${ord.id}`);
-      const body = encodeURIComponent(buildReceiptText(ord) + '\n\nPlease find your PDF receipt attached.');
+      const body = encodeURIComponent(buildReceiptText(ord) + '\n\n(Please attach the downloaded PDF receipt before sending.)');
       window.location.href = `mailto:${encodeURIComponent(ord.clientEmail || '')}?subject=${subject}&body=${body}`;
     }
 
