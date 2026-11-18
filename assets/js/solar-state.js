@@ -20,7 +20,15 @@ const DEFAULT_INVENTORY = [
     stock: 5,
     minThreshold: 2,
     unitPrice: 580000,
-    costPrice: 460000
+    costPrice: 460000,
+    priceHistory: [
+      { date: '2026-10-15 09:00', costPrice: 440000, unitPrice: 550000, note: 'Initial Q4 batch pricing' },
+      { date: '2026-11-02 11:30', costPrice: 460000, unitPrice: 580000, note: 'FX adjustment on new shipment' }
+    ],
+    stockHistory: [
+      { date: '2026-10-15 09:00', delta: 6, newStock: 6, reason: 'Opening warehouse stock' },
+      { date: '2026-11-16 10:30', delta: -1, newStock: 5, reason: 'Order DJS-8842 BOM allocation' }
+    ]
   },
   {
     id: 'inv-50kva',
@@ -30,7 +38,13 @@ const DEFAULT_INVENTORY = [
     stock: 7,
     minThreshold: 3,
     unitPrice: 850000,
-    costPrice: 690000
+    costPrice: 690000,
+    priceHistory: [
+      { date: '2026-10-15 09:00', costPrice: 690000, unitPrice: 850000, note: 'Initial catalog pricing' }
+    ],
+    stockHistory: [
+      { date: '2026-10-15 09:00', delta: 7, newStock: 7, reason: 'Opening warehouse stock' }
+    ]
   },
   {
     id: 'inv-100kva',
@@ -40,7 +54,14 @@ const DEFAULT_INVENTORY = [
     stock: 3,
     minThreshold: 2,
     unitPrice: 1950000,
-    costPrice: 1600000
+    costPrice: 1600000,
+    priceHistory: [
+      { date: '2026-10-15 09:00', costPrice: 1600000, unitPrice: 1950000, note: 'Initial catalog pricing' }
+    ],
+    stockHistory: [
+      { date: '2026-10-15 09:00', delta: 4, newStock: 4, reason: 'Opening warehouse stock' },
+      { date: '2026-10-24 14:15', delta: -1, newStock: 3, reason: 'Order DJS-8790 BOM allocation' }
+    ]
   },
   {
     id: 'bat-512kwh',
@@ -50,7 +71,15 @@ const DEFAULT_INVENTORY = [
     stock: 4,
     minThreshold: 3,
     unitPrice: 1650000,
-    costPrice: 1350000
+    costPrice: 1350000,
+    priceHistory: [
+      { date: '2026-10-15 09:00', costPrice: 1300000, unitPrice: 1580000, note: 'Initial Q4 batch pricing' },
+      { date: '2026-11-05 14:00', costPrice: 1350000, unitPrice: 1650000, note: 'Updated lithium cell landed cost' }
+    ],
+    stockHistory: [
+      { date: '2026-10-15 09:00', delta: 5, newStock: 5, reason: 'Opening warehouse stock' },
+      { date: '2026-11-16 10:30', delta: -1, newStock: 4, reason: 'Order DJS-8842 BOM allocation' }
+    ]
   },
   {
     id: 'bat-1024kwh',
@@ -60,7 +89,14 @@ const DEFAULT_INVENTORY = [
     stock: 2,
     minThreshold: 2,
     unitPrice: 3100000,
-    costPrice: 2550000
+    costPrice: 2550000,
+    priceHistory: [
+      { date: '2026-10-15 09:00', costPrice: 2550000, unitPrice: 3100000, note: 'Initial catalog pricing' }
+    ],
+    stockHistory: [
+      { date: '2026-10-15 09:00', delta: 3, newStock: 3, reason: 'Opening warehouse stock' },
+      { date: '2026-10-24 14:15', delta: -1, newStock: 2, reason: 'Order DJS-8790 BOM allocation' }
+    ]
   },
   {
     id: 'pv-550w',
@@ -70,7 +106,15 @@ const DEFAULT_INVENTORY = [
     stock: 38,
     minThreshold: 12,
     unitPrice: 125000,
-    costPrice: 98000
+    costPrice: 98000,
+    priceHistory: [
+      { date: '2026-10-15 09:00', costPrice: 98000, unitPrice: 125000, note: 'Initial catalog pricing' }
+    ],
+    stockHistory: [
+      { date: '2026-10-15 09:00', delta: 54, newStock: 54, reason: 'Container arrival (54 panels)' },
+      { date: '2026-10-24 14:15', delta: -12, newStock: 42, reason: 'Order DJS-8790 BOM allocation' },
+      { date: '2026-11-16 10:30', delta: -4, newStock: 38, reason: 'Order DJS-8842 BOM allocation' }
+    ]
   },
   {
     id: 'bos-cables',
@@ -80,7 +124,15 @@ const DEFAULT_INVENTORY = [
     stock: 14,
     minThreshold: 5,
     unitPrice: 280000,
-    costPrice: 195000
+    costPrice: 195000,
+    priceHistory: [
+      { date: '2026-10-15 09:00', costPrice: 195000, unitPrice: 280000, note: 'Initial catalog pricing' }
+    ],
+    stockHistory: [
+      { date: '2026-10-15 09:00', delta: 17, newStock: 17, reason: 'Opening warehouse stock' },
+      { date: '2026-10-24 14:15', delta: -2, newStock: 15, reason: 'Order DJS-8790 BOM allocation' },
+      { date: '2026-11-16 10:30', delta: -1, newStock: 14, reason: 'Order DJS-8842 BOM allocation' }
+    ]
   }
 ];
 
@@ -304,6 +356,11 @@ class DaryJSolarState {
     }
   }
 
+  nowStamp() {
+    const d = new Date();
+    return d.toISOString().slice(0, 16).replace('T', ' ');
+  }
+
   // --- Inventory Methods ---
   getInventory() {
     try {
@@ -312,7 +369,19 @@ class DaryJSolarState {
         localStorage.setItem(STORAGE_KEY_INVENTORY, JSON.stringify(DEFAULT_INVENTORY));
         return DEFAULT_INVENTORY;
       }
-      return JSON.parse(stored);
+      const parsed = JSON.parse(stored);
+      return parsed.map(item => {
+        const seed = DEFAULT_INVENTORY.find(d => d.id === item.id);
+        return {
+          ...item,
+          priceHistory: Array.isArray(item.priceHistory) && item.priceHistory.length
+            ? item.priceHistory
+            : (seed ? seed.priceHistory : [{ date: this.nowStamp(), costPrice: item.costPrice || 0, unitPrice: item.unitPrice || 0, note: 'Baseline price' }]),
+          stockHistory: Array.isArray(item.stockHistory) && item.stockHistory.length
+            ? item.stockHistory
+            : (seed ? seed.stockHistory : [{ date: this.nowStamp(), delta: item.stock || 0, newStock: item.stock || 0, reason: 'Baseline stock' }])
+        };
+      });
     } catch (e) {
       return DEFAULT_INVENTORY;
     }
@@ -325,22 +394,44 @@ class DaryJSolarState {
     } catch (e) {}
   }
 
-  updateStock(itemId, delta) {
+  updateStock(itemId, delta, reason = 'Manual stock adjustment') {
     const inv = this.getInventory();
     const item = inv.find(i => i.id === itemId);
     if (item) {
-      item.stock = Math.max(0, item.stock + delta);
+      const prev = item.stock;
+      item.stock = Math.max(0, prev + delta);
+      const actualDelta = item.stock - prev;
+      if (actualDelta !== 0) {
+        item.stockHistory = item.stockHistory || [];
+        item.stockHistory.unshift({
+          date: this.nowStamp(),
+          delta: actualDelta,
+          newStock: item.stock,
+          reason
+        });
+      }
       this.saveInventory(inv);
       return item.stock;
     }
     return 0;
   }
 
-  setStock(itemId, quantity) {
+  setStock(itemId, quantity, reason = 'Stock set') {
     const inv = this.getInventory();
     const item = inv.find(i => i.id === itemId);
     if (item) {
+      const prev = item.stock;
       item.stock = Math.max(0, quantity);
+      const delta = item.stock - prev;
+      if (delta !== 0) {
+        item.stockHistory = item.stockHistory || [];
+        item.stockHistory.unshift({
+          date: this.nowStamp(),
+          delta,
+          newStock: item.stock,
+          reason
+        });
+      }
       this.saveInventory(inv);
       return item.stock;
     }
@@ -349,26 +440,68 @@ class DaryJSolarState {
 
   addInventoryItem(itemData) {
     const inv = this.getInventory();
+    const stock = Number(itemData.stock) || 0;
+    const unitPrice = Number(itemData.unitPrice) || 0;
+    const costPrice = Number(itemData.costPrice) || 0;
+    const stamp = this.nowStamp();
+
     const newItem = {
       id: 'item-' + Date.now().toString(36),
       name: itemData.name,
       category: itemData.category || 'accessories',
       sku: itemData.sku || ('DJS-' + Math.floor(1000 + Math.random() * 9000)),
-      stock: Number(itemData.stock) || 0,
+      stock,
       minThreshold: Number(itemData.minThreshold) || 2,
-      unitPrice: Number(itemData.unitPrice) || 0,
-      costPrice: Number(itemData.costPrice) || 0
+      unitPrice,
+      costPrice,
+      priceHistory: [
+        { date: stamp, costPrice, unitPrice, note: 'Initial SKU creation' }
+      ],
+      stockHistory: [
+        { date: stamp, delta: stock, newStock: stock, reason: 'Initial SKU stock' }
+      ]
     };
     inv.push(newItem);
     this.saveInventory(inv);
     return newItem;
   }
 
-  updateInventoryItem(itemId, updates) {
+  updateInventoryItem(itemId, updates, reason = 'SKU details updated') {
     const inv = this.getInventory();
     const idx = inv.findIndex(i => i.id === itemId);
     if (idx === -1) return null;
-    inv[idx] = { ...inv[idx], ...updates };
+
+    const existing = inv[idx];
+    const stamp = this.nowStamp();
+    const next = { ...existing, ...updates };
+
+    // Record price change if costPrice or unitPrice changed
+    if (
+      (updates.costPrice !== undefined && Number(updates.costPrice) !== Number(existing.costPrice)) ||
+      (updates.unitPrice !== undefined && Number(updates.unitPrice) !== Number(existing.unitPrice))
+    ) {
+      next.priceHistory = Array.isArray(existing.priceHistory) ? [...existing.priceHistory] : [];
+      next.priceHistory.unshift({
+        date: stamp,
+        costPrice: Number(next.costPrice) || 0,
+        unitPrice: Number(next.unitPrice) || 0,
+        note: reason
+      });
+    }
+
+    // Record stock change if stock changed
+    if (updates.stock !== undefined && Number(updates.stock) !== Number(existing.stock)) {
+      const delta = Number(updates.stock) - Number(existing.stock);
+      next.stockHistory = Array.isArray(existing.stockHistory) ? [...existing.stockHistory] : [];
+      next.stockHistory.unshift({
+        date: stamp,
+        delta,
+        newStock: Number(updates.stock),
+        reason
+      });
+    }
+
+    inv[idx] = next;
     this.saveInventory(inv);
     return inv[idx];
   }
@@ -475,7 +608,7 @@ class DaryJSolarState {
     if (newOrder.bom && Array.isArray(newOrder.bom)) {
       newOrder.bom.forEach(b => {
         if (b.itemId) {
-          this.updateStock(b.itemId, -(b.qty || 1));
+          this.updateStock(b.itemId, -(b.qty || 1), `Order ${orderId} BOM allocation`);
         }
       });
     }
@@ -738,6 +871,54 @@ class DaryJSolarState {
     try {
       localStorage.setItem(STORAGE_KEY_CLIENT, JSON.stringify(profile));
       this.notifyChange('client_updated', { profile });
+    } catch (e) {}
+  }
+
+  // --- JSON Database Export / Import / Seed ---
+  exportDatabaseJSON() {
+    let storedClients = [];
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY_CLIENTS);
+      if (raw) storedClients = JSON.parse(raw);
+    } catch (e) {}
+
+    return {
+      version: '3.0',
+      exportedAt: new Date().toISOString(),
+      inventory: this.getInventory(),
+      orders: this.getOrders(),
+      clients: storedClients,
+      expenses: this.getExpenses(),
+      engineers: this.getEngineers()
+    };
+  }
+
+  importDatabaseJSON(db) {
+    if (!db || typeof db !== 'object') return false;
+    try {
+      if (Array.isArray(db.inventory)) localStorage.setItem(STORAGE_KEY_INVENTORY, JSON.stringify(db.inventory));
+      if (Array.isArray(db.orders)) localStorage.setItem(STORAGE_KEY_ORDERS, JSON.stringify(db.orders));
+      if (Array.isArray(db.clients)) localStorage.setItem(STORAGE_KEY_CLIENTS, JSON.stringify(db.clients));
+      if (Array.isArray(db.expenses)) localStorage.setItem(STORAGE_KEY_EXPENSES, JSON.stringify(db.expenses));
+      if (Array.isArray(db.engineers)) localStorage.setItem(STORAGE_KEY_ENGINEERS, JSON.stringify(db.engineers));
+      this.notifyChange('database_imported', { timestamp: Date.now() });
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  async initDatabaseFromJson(url = 'assets/data/erp-db.json') {
+    if (typeof window === 'undefined' || !window.fetch) return;
+    if (localStorage.getItem(STORAGE_KEY_INVENTORY)) return;
+    try {
+      const res = await fetch(url);
+      if (!res.ok) return;
+      const db = await res.json();
+      if (db && Array.isArray(db.inventory) && db.inventory.length) {
+        localStorage.setItem(STORAGE_KEY_INVENTORY, JSON.stringify(db.inventory));
+        this.notifyChange('database_seeded', { source: url });
+      }
     } catch (e) {}
   }
 

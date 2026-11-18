@@ -1,0 +1,132 @@
+{
+  "version": "3.0",
+  "updatedAt": "2026-11-18T17:16:00Z",
+  "inventory": [
+    {
+      "id": "inv-35kva",
+      "name": "3.5kVA / 24V MPPT Pure Sine Hybrid Inverter",
+      "category": "inverters",
+      "sku": "DJS-INV-3524",
+      "stock": 5,
+      "minThreshold": 2,
+      "unitPrice": 580000,
+      "costPrice": 460000,
+      "priceHistory": [
+        { "date": "2026-10-15 09:00", "costPrice": 440000, "unitPrice": 550000, "note": "Initial Q4 batch pricing" },
+        { "date": "2026-11-02 11:30", "costPrice": 460000, "unitPrice": 580000, "note": "FX adjustment on new shipment" }
+      ],
+      "stockHistory": [
+        { "date": "2026-10-15 09:00", "delta": 6, "newStock": 6, "reason": "Opening warehouse stock" },
+        { "date": "2026-11-16 10:30", "delta": -1, "newStock": 5, "reason": "Order DJS-8842 BOM allocation" }
+      ]
+    },
+    {
+      "id": "inv-50kva",
+      "name": "5.0kVA / 48V MPPT Hybrid Solar Inverter",
+      "category": "inverters",
+      "sku": "DJS-INV-5048",
+      "stock": 7,
+      "minThreshold": 3,
+      "unitPrice": 850000,
+      "costPrice": 690000,
+      "priceHistory": [
+        { "date": "2026-10-15 09:00", "costPrice": 690000, "unitPrice": 850000, "note": "Initial catalog pricing" }
+      ],
+      "stockHistory": [
+        { "date": "2026-10-15 09:00", "delta": 7, "newStock": 7, "reason": "Opening warehouse stock" }
+      ]
+    },
+    {
+      "id": "inv-100kva",
+      "name": "10.0kVA / 48V High-Yield Commercial Inverter",
+      "category": "inverters",
+      "sku": "DJS-INV-10048",
+      "stock": 3,
+      "minThreshold": 2,
+      "unitPrice": 1950000,
+      "costPrice": 1600000,
+      "priceHistory": [
+        { "date": "2026-10-15 09:00", "costPrice": 1600000, "unitPrice": 1950000, "note": "Initial catalog pricing" }
+      ],
+      "stockHistory": [
+        { "date": "2026-10-15 09:00", "delta": 4, "newStock": 4, "reason": "Opening warehouse stock" },
+        { "date": "2026-10-24 14:15", "delta": -1, "newStock": 3, "reason": "Order DJS-8790 BOM allocation" }
+      ]
+    },
+    {
+      "id": "bat-512kwh",
+      "name": "5.12kWh / 51.2V 100Ah LiFePO4 Lithium Wallpack",
+      "category": "batteries",
+      "sku": "DJS-BAT-512",
+      "stock": 4,
+      "minThreshold": 3,
+      "unitPrice": 1650000,
+      "costPrice": 1350000,
+      "priceHistory": [
+        { "date": "2026-10-15 09:00", "costPrice": 1300000, "unitPrice": 1580000, "note": "Initial Q4 batch pricing" },
+        { "date": "2026-11-05 14:00", "costPrice": 1350000, "unitPrice": 1650000, "note": "Updated lithium cell landed cost" }
+      ],
+      "stockHistory": [
+        { "date": "2026-10-15 09:00", "delta": 5, "newStock": 5, "reason": "Opening warehouse stock" },
+        { "date": "2026-11-16 10:30", "delta": -1, "newStock": 4, "reason": "Order DJS-8842 BOM allocation" }
+      ]
+    },
+    {
+      "id": "bat-1024kwh",
+      "name": "10.24kWh / 51.2V 200Ah High-Density LiFePO4 Battery",
+      "category": "batteries",
+      "sku": "DJS-BAT-1024",
+      "stock": 2,
+      "minThreshold": 2,
+      "unitPrice": 3100000,
+      "costPrice": 2550000,
+      "priceHistory": [
+        { "date": "2026-10-15 09:00", "costPrice": 2550000, "unitPrice": 3100000, "note": "Initial catalog pricing" }
+      ],
+      "stockHistory": [
+        { "date": "2026-10-15 09:00", "delta": 3, "newStock": 3, "reason": "Opening warehouse stock" },
+        { "date": "2026-10-24 14:15", "delta": -1, "newStock": 2, "reason": "Order DJS-8790 BOM allocation" }
+      ]
+    },
+    {
+      "id": "pv-550w",
+      "name": "550W Tier-1 Monocrystalline PV Solar Panel",
+      "category": "panels",
+      "sku": "DJS-PV-550M",
+      "stock": 38,
+      "minThreshold": 12,
+      "unitPrice": 125000,
+      "costPrice": 98000,
+      "priceHistory": [
+        { "date": "2026-10-15 09:00", "costPrice": 98000, "unitPrice": 125000, "note": "Initial catalog pricing" }
+      ],
+      "stockHistory": [
+        { "date": "2026-10-15 09:00", "delta": 54, "newStock": 54, "reason": "Container arrival (54 panels)" },
+        { "date": "2026-10-24 14:15", "delta": -12, "newStock": 42, "reason": "Order DJS-8790 BOM allocation" },
+        { "date": "2026-11-16 10:30", "delta": -4, "newStock": 38, "reason": "Order DJS-8842 BOM allocation" }
+      ]
+    },
+    {
+      "id": "bos-cables",
+      "name": "Balance of System: DC Breakers, SPD & 16mm Cables Kit",
+      "category": "accessories",
+      "sku": "DJS-BOS-KIT",
+      "stock": 14,
+      "minThreshold": 5,
+      "unitPrice": 280000,
+      "costPrice": 195000,
+      "priceHistory": [
+        { "date": "2026-10-15 09:00", "costPrice": 195000, "unitPrice": 280000, "note": "Initial catalog pricing" }
+      ],
+      "stockHistory": [
+        { "date": "2026-10-15 09:00", "delta": 17, "newStock": 17, "reason": "Opening warehouse stock" },
+        { "date": "2026-10-24 14:15", "delta": -2, "newStock": 15, "reason": "Order DJS-8790 BOM allocation" },
+        { "date": "2026-11-16 10:30", "delta": -1, "newStock": 14, "reason": "Order DJS-8842 BOM allocation" }
+      ]
+    }
+  ],
+  "orders": [],
+  "clients": [],
+  "expenses": [],
+  "engineers": []
+}
