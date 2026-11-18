@@ -10,11 +10,13 @@ const STORAGE_KEY_CLIENTS = 'daryj_solar_clients_v1';
 const STORAGE_KEY_EXPENSES = 'daryj_solar_expenses_v1';
 const STORAGE_KEY_ENGINEERS = 'daryj_solar_engineers_v1';
 const STORAGE_KEY_BATCHES = 'daryj_solar_batches_v1';
+const STORAGE_KEY_SALES = 'daryj_solar_sales_v1';
 
 // Default Hardware Inventory Seed
 const DEFAULT_INVENTORY = [
   {
     id: 'inv-35kva',
+    brand: 'Felicity Solar',
     name: '3.5kVA / 24V MPPT Pure Sine Hybrid Inverter',
     category: 'inverters',
     sku: 'DJS-INV-3524',
@@ -33,6 +35,7 @@ const DEFAULT_INVENTORY = [
   },
   {
     id: 'inv-50kva',
+    brand: 'Felicity Solar',
     name: '5.0kVA / 48V MPPT Hybrid Solar Inverter',
     category: 'inverters',
     sku: 'DJS-INV-5048',
@@ -49,6 +52,7 @@ const DEFAULT_INVENTORY = [
   },
   {
     id: 'inv-100kva',
+    brand: 'Deye',
     name: '10.0kVA / 48V High-Yield Commercial Inverter',
     category: 'inverters',
     sku: 'DJS-INV-10048',
@@ -66,6 +70,7 @@ const DEFAULT_INVENTORY = [
   },
   {
     id: 'bat-512kwh',
+    brand: 'Felicity Solar',
     name: '5.12kWh / 51.2V 100Ah LiFePO4 Lithium Wallpack',
     category: 'batteries',
     sku: 'DJS-BAT-512',
@@ -84,6 +89,7 @@ const DEFAULT_INVENTORY = [
   },
   {
     id: 'bat-1024kwh',
+    brand: 'Itel',
     name: '10.24kWh / 51.2V 200Ah High-Density LiFePO4 Battery',
     category: 'batteries',
     sku: 'DJS-BAT-1024',
@@ -101,6 +107,7 @@ const DEFAULT_INVENTORY = [
   },
   {
     id: 'pv-550w',
+    brand: 'Jinko Solar',
     name: '550W Tier-1 Monocrystalline PV Solar Panel',
     category: 'panels',
     sku: 'DJS-PV-550M',
@@ -119,6 +126,7 @@ const DEFAULT_INVENTORY = [
   },
   {
     id: 'bos-cables',
+    brand: 'Dary J BOS',
     name: 'Balance of System: DC Breakers, SPD & 16mm Cables Kit',
     category: 'accessories',
     sku: 'DJS-BOS-KIT',
@@ -375,6 +383,7 @@ class DaryJSolarState {
         const seed = DEFAULT_INVENTORY.find(d => d.id === item.id);
         return {
           ...item,
+          brand: item.brand || (seed ? seed.brand : 'Generic'),
           priceHistory: Array.isArray(item.priceHistory) && item.priceHistory.length
             ? item.priceHistory
             : (seed ? seed.priceHistory : [{ date: this.nowStamp(), costPrice: item.costPrice || 0, unitPrice: item.unitPrice || 0, note: 'Baseline price' }]),
@@ -455,6 +464,7 @@ class DaryJSolarState {
 
     const newItem = {
       id: 'item-' + Date.now().toString(36),
+      brand: (itemData.brand || 'Generic').trim(),
       name: itemData.name,
       category: itemData.category || 'accessories',
       sku: itemData.sku || ('DJS-' + Math.floor(1000 + Math.random() * 9000)),
@@ -1085,6 +1095,166 @@ class DaryJSolarState {
     this.saveBatches(batches);
   }
 
+  // --- Direct Inventory Sales & Brand Analytics ---
+  getSales() {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY_SALES);
+      if (stored) return JSON.parse(stored);
+    } catch (e) {}
+    return [];
+  }
+
+  saveSales(sales) {
+    try {
+      localStorage.setItem(STORAGE_KEY_SALES, JSON.stringify(sales));
+      this.notifyChange('sales_updated', { sales });
+    } catch (e) {}
+  }
+
+  recordDirectSale(saleData) {
+    const inv = this.getInventory();
+    const item = inv.find(i => i.id === saleData.itemId);
+    if (!item) return null;
+
+    const qty = Math.max(1, Number(saleData.qty) || 1);
+    const unitPrice = Number(saleData.unitPrice) || item.unitPrice || 0;
+    const unitCost = Number(item.costPrice) || Math.round(unitPrice * 0.78);
+    const totalAmount = qty * unitPrice;
+    const totalCost = qty * unitCost;
+    const saleId = 'SAL-' + Math.floor(1000 + Math.random() * 9000);
+    const customerName = (saleData.customerName || 'Walk-in Customer').trim();
+
+    // Deduct stock (also records stockHistory & FIFO batch allocation)
+    this.updateStock(item.id, -qty, `Direct Sale ${saleId} (${customerName})`, {
+      orderId: saleId,
+      clientName: customerName
+    });
+
+    const sales = this.getSales();
+    const newSale = {
+      id: saleId,
+      date: saleData.date || new Date().toISOString().split('T')[0],
+      itemId: item.id,
+      sku: item.sku,
+      brand: item.brand || 'Generic',
+      productName: item.name,
+      qty,
+      unitPrice,
+      unitCost,
+      totalAmount,
+      totalCost,
+      profit: totalAmount - totalCost,
+      customerName,
+      customerPhone: (saleData.customerPhone || '').trim(),
+      paymentMethod: saleData.paymentMethod || 'Transfer / POS'
+    };
+    sales.unshift(newSale);
+    this.saveSales(sales);
+    return newSale;
+  }
+
+  getBrands() {
+    const inv = this.getInventory();
+    const set = new Set();
+    inv.forEach(i => set.add((i.brand || 'Generic').trim()));
+    return Array.from(set).sort();
+  }
+
+  getBrandBreakdown(brandName) {
+    const target = (brandName || '').toLowerCase().trim();
+    const inv = this.getInventory().filter(i => (i.brand || 'Generic').toLowerCase().trim() === target);
+    const itemIds = new Set(inv.map(i => i.id));
+
+    const sales = this.getSales().filter(s => itemIds.has(s.itemId) || (s.brand || '').toLowerCase().trim() === target);
+    const orders = this.getOrders();
+
+    // Aggregate per product from both Direct Sales and Installation Order BOMs
+    const productStats = new Map();
+    inv.forEach(i => {
+      productStats.set(i.id, {
+        id: i.id,
+        sku: i.sku,
+        name: i.name,
+        category: i.category,
+        stock: i.stock,
+        unitPrice: i.unitPrice,
+        costPrice: i.costPrice || Math.round(i.unitPrice * 0.78),
+        unitsSold: 0,
+        revenue: 0,
+        cost: 0,
+        profit: 0
+      });
+    });
+
+    const events = [];
+
+    sales.forEach(s => {
+      const st = productStats.get(s.itemId);
+      if (st) {
+        st.unitsSold += s.qty;
+        st.revenue += s.totalAmount;
+        st.cost += s.totalCost;
+        st.profit += s.profit;
+      }
+      events.push({
+        date: s.date,
+        ref: s.id,
+        type: 'Direct Sale',
+        client: s.customerName,
+        product: s.productName,
+        qty: s.qty,
+        revenue: s.totalAmount,
+        profit: s.profit
+      });
+    });
+
+    orders.forEach(ord => {
+      (ord.bom || []).forEach(b => {
+        if (!itemIds.has(b.itemId)) return;
+        const st = productStats.get(b.itemId);
+        const qty = Number(b.qty) || 1;
+        const rev = st ? st.unitPrice * qty : 0;
+        const cost = st ? st.costPrice * qty : 0;
+        const profit = rev - cost;
+        if (st) {
+          st.unitsSold += qty;
+          st.revenue += rev;
+          st.cost += cost;
+          st.profit += profit;
+        }
+        events.push({
+          date: (ord.date || '').split('T')[0],
+          ref: ord.id,
+          type: 'Project BOM',
+          client: ord.clientName,
+          product: st ? st.name : b.name,
+          qty,
+          revenue: rev,
+          profit
+        });
+      });
+    });
+
+    const products = Array.from(productStats.values());
+    const totalStock = products.reduce((s, p) => s + p.stock, 0);
+    const totalUnitsSold = products.reduce((s, p) => s + p.unitsSold, 0);
+    const totalRevenue = products.reduce((s, p) => s + p.revenue, 0);
+    const totalCost = products.reduce((s, p) => s + p.cost, 0);
+    const totalProfit = totalRevenue - totalCost;
+
+    return {
+      brand: brandName,
+      products,
+      events,
+      totalSkus: products.length,
+      totalStock,
+      totalUnitsSold,
+      totalRevenue,
+      totalCost,
+      totalProfit
+    };
+  }
+
   // --- JSON Database Export / Import / Seed ---
   exportDatabaseJSON() {
     let storedClients = [];
@@ -1098,6 +1268,7 @@ class DaryJSolarState {
       exportedAt: new Date().toISOString(),
       inventory: this.getInventory(),
       batches: this.getBatches(),
+      sales: this.getSales(),
       orders: this.getOrders(),
       clients: storedClients,
       expenses: this.getExpenses(),
@@ -1110,6 +1281,7 @@ class DaryJSolarState {
     try {
       if (Array.isArray(db.inventory)) localStorage.setItem(STORAGE_KEY_INVENTORY, JSON.stringify(db.inventory));
       if (Array.isArray(db.batches)) localStorage.setItem(STORAGE_KEY_BATCHES, JSON.stringify(db.batches));
+      if (Array.isArray(db.sales)) localStorage.setItem(STORAGE_KEY_SALES, JSON.stringify(db.sales));
       if (Array.isArray(db.orders)) localStorage.setItem(STORAGE_KEY_ORDERS, JSON.stringify(db.orders));
       if (Array.isArray(db.clients)) localStorage.setItem(STORAGE_KEY_CLIENTS, JSON.stringify(db.clients));
       if (Array.isArray(db.expenses)) localStorage.setItem(STORAGE_KEY_EXPENSES, JSON.stringify(db.expenses));

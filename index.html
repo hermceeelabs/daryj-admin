@@ -136,6 +136,14 @@
           <span id="navBatchesCount" class="text-[11px] font-semibold opacity-75">0</span>
         </button>
 
+        <button onclick="switchTab('sales')" class="tab-btn w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all text-slate-300 hover:bg-white/5 hover:text-white" data-target="sales">
+          <div class="flex items-center gap-3">
+            <i data-lucide="receipt" class="w-4 h-4 shrink-0"></i>
+            <span>Direct Sales</span>
+          </div>
+          <span id="navSalesCount" class="text-[11px] font-semibold opacity-75">0</span>
+        </button>
+
         <button onclick="switchTab('financials')" class="tab-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all text-slate-300 hover:bg-white/5 hover:text-white" data-target="financials">
           <i data-lucide="wallet" class="w-4 h-4 shrink-0"></i>
           <span>Financials &amp; P&amp;L</span>
@@ -523,6 +531,9 @@
               <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
               <input id="invSearchInput" oninput="renderInventoryTab()" type="text" placeholder="Search SKU or component..." class="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#F59E0B]" />
             </div>
+            <select id="invBrandFilter" onchange="renderInventoryTab()" class="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-200">
+              <option value="all">All Brands</option>
+            </select>
             <select id="invCategoryFilter" onchange="renderInventoryTab()" class="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-200">
               <option value="all">All Categories</option>
               <option value="inverters">Inverters</option>
@@ -547,7 +558,8 @@
           <table class="w-full text-left text-xs">
             <thead>
               <tr class="bg-slate-800/80 text-slate-200 border-b border-slate-700 uppercase tracking-wider text-[11px] font-extrabold whitespace-nowrap">
-                <th class="py-3 px-3">SKU &amp; Item Name</th>
+                <th class="py-3 px-3">SKU &amp; Product Name</th>
+                <th class="py-3 px-3">Brand</th>
                 <th class="py-3 px-3">Category</th>
                 <th class="py-3 px-3">Batches</th>
                 <th class="py-3 px-3 text-center">In-Stock</th>
@@ -622,6 +634,66 @@
               </tr>
             </thead>
             <tbody id="batchesTableBody" class="divide-y divide-slate-800 text-slate-200"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- TAB 5C: DIRECT INVENTORY SALES                            -->
+    <!-- ========================================================= -->
+    <div id="tab-sales" class="tab-content hidden space-y-6">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 pb-6 border-b border-slate-800">
+        <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800">
+          <span class="text-[11px] font-bold text-slate-400 uppercase">Direct Sales</span>
+          <h3 id="salStatCount" class="text-2xl font-black text-white font-brand mt-1">0</h3>
+        </div>
+        <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800">
+          <span class="text-[11px] font-bold text-slate-400 uppercase">Units Sold</span>
+          <h3 id="salStatUnits" class="text-2xl font-black text-[#FBBF24] font-brand mt-1">0</h3>
+        </div>
+        <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800">
+          <span class="text-[11px] font-bold text-slate-400 uppercase">Direct Sales Revenue</span>
+          <h3 id="salStatRev" class="text-2xl font-black text-white font-brand mt-1">₦0</h3>
+        </div>
+        <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800">
+          <span class="text-[11px] font-bold text-slate-400 uppercase">Direct Sales Profit</span>
+          <h3 id="salStatProfit" class="text-2xl font-black text-emerald-400 font-brand mt-1">₦0</h3>
+        </div>
+      </div>
+
+      <div class="bg-slate-900 rounded-2xl border border-slate-800 p-5 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-800">
+          <div class="flex flex-wrap items-center gap-2.5 flex-1">
+            <div class="relative flex-1 max-w-xs">
+              <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+              <input id="saleSearchInput" oninput="renderSalesTab()" type="text" placeholder="Search sale ID, customer, product..." class="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#F59E0B]" />
+            </div>
+            <select id="saleBrandFilter" onchange="renderSalesTab()" class="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-200">
+              <option value="all">All Brands</option>
+            </select>
+          </div>
+          <button onclick="openSaleModal()" class="px-3.5 py-2 rounded-xl bg-[#F59E0B] hover:bg-[#E28C1A] text-[#0A1E3A] font-extrabold text-xs flex items-center gap-1.5">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Record Direct Sale</span>
+          </button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead>
+              <tr class="bg-slate-800/80 text-slate-200 border-b border-slate-700 uppercase tracking-wider text-[11px] font-extrabold whitespace-nowrap">
+                <th class="py-3 px-3">Sale ID &amp; Date</th>
+                <th class="py-3 px-3">Customer</th>
+                <th class="py-3 px-3">Brand</th>
+                <th class="py-3 px-3">Product</th>
+                <th class="py-3 px-3 text-center">Qty</th>
+                <th class="py-3 px-3">Unit Price</th>
+                <th class="py-3 px-3">Total</th>
+                <th class="py-3 px-3">Profit</th>
+              </tr>
+            </thead>
+            <tbody id="salesTableBody" class="divide-y divide-slate-800 text-slate-200"></tbody>
           </table>
         </div>
       </div>
@@ -958,15 +1030,22 @@
       </div>
       <form onsubmit="submitInventoryForm(event)" class="space-y-3 text-xs">
         <input type="hidden" id="invEditId" />
-        <div>
-          <label class="block text-slate-400 font-bold mb-1">Component Name *</label>
-          <input id="invName" required type="text" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white" />
-        </div>
-        <div class="grid grid-cols-2 gap-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-400 font-bold mb-1">Brand *</label>
+            <input id="invBrand" list="brandSuggestions" required type="text" placeholder="e.g. Itel, Felicity Solar" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white" />
+            <datalist id="brandSuggestions"></datalist>
+          </div>
           <div>
             <label class="block text-slate-400 font-bold mb-1">SKU Code *</label>
             <input id="invSku" required type="text" placeholder="DJS-INV-..." class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white" />
           </div>
+        </div>
+        <div>
+          <label class="block text-slate-400 font-bold mb-1">Product Name *</label>
+          <input id="invName" required type="text" placeholder="e.g. Itel 1kWh Solar Generator" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white" />
+        </div>
+        <div class="grid grid-cols-3 gap-3">
           <div>
             <label class="block text-slate-400 font-bold mb-1">Category *</label>
             <select id="invCategory" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white">
@@ -976,14 +1055,12 @@
               <option value="accessories">BOS &amp; Accessories</option>
             </select>
           </div>
-        </div>
-        <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-slate-400 font-bold mb-1">In-Stock Qty *</label>
             <input id="invStock" required type="number" min="0" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white" />
           </div>
           <div>
-            <label class="block text-slate-400 font-bold mb-1">Low Stock Threshold *</label>
+            <label class="block text-slate-400 font-bold mb-1">Min Alert *</label>
             <input id="invThreshold" required type="number" min="0" value="2" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white" />
           </div>
         </div>
@@ -1085,6 +1162,81 @@
     </div>
   </div>
 
+  <!-- 10. RECORD DIRECT SALE MODAL -->
+  <div id="saleModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-md p-6 space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <h3 class="text-base font-black font-brand text-white">Record Direct Inventory Sale</h3>
+        <button onclick="closeModal('saleModal')" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <form onsubmit="submitSaleForm(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-400 font-bold mb-1">Filter by Brand</label>
+          <select id="salBrandFilter" onchange="onSaleBrandFilterChange()" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white">
+            <option value="all">All Brands</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-slate-400 font-bold mb-1">Product *</label>
+          <select id="salItemId" required onchange="onSaleItemChange()" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white"></select>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-400 font-bold mb-1">Quantity *</label>
+            <input id="salQty" required type="number" min="1" value="1" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white" />
+          </div>
+          <div>
+            <label class="block text-slate-400 font-bold mb-1">Unit Selling Price (₦) *</label>
+            <input id="salUnitPrice" required type="number" min="0" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white" />
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-400 font-bold mb-1">Customer Name *</label>
+            <input id="salCustomerName" required type="text" placeholder="Walk-in / Client name" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white" />
+          </div>
+          <div>
+            <label class="block text-slate-400 font-bold mb-1">Phone</label>
+            <input id="salCustomerPhone" type="text" placeholder="080..." class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white" />
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-400 font-bold mb-1">Date *</label>
+            <input id="salDate" required type="date" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white" />
+          </div>
+          <div>
+            <label class="block text-slate-400 font-bold mb-1">Payment Method</label>
+            <select id="salMethod" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white">
+              <option value="Bank Transfer">Bank Transfer</option>
+              <option value="POS / Card">POS / Card</option>
+              <option value="Cash">Cash</option>
+              <option value="Paystack">Paystack</option>
+            </select>
+          </div>
+        </div>
+        <div class="pt-3 flex justify-end gap-2">
+          <button type="button" onclick="closeModal('saleModal')" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-bold">Cancel</button>
+          <button type="submit" class="px-4 py-2 rounded-xl bg-[#F59E0B] text-[#0A1E3A] font-extrabold">Record Sale &amp; Deduct Stock</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 11. BRAND BREAKDOWN MODAL -->
+  <div id="brandDetailModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-3xl p-6 space-y-5 max-h-[90vh] overflow-y-auto custom-scrollbar">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div class="min-w-0">
+          <span class="font-mono text-xs font-bold text-[#FBBF24]">BRAND PERFORMANCE &amp; PRODUCT BREAKDOWN</span>
+          <h3 id="brdDetName" class="text-lg font-black font-brand text-white truncate">Brand</h3>
+        </div>
+        <button onclick="closeModal('brandDetailModal')" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div id="brdDetBody" class="space-y-5 text-xs"></div>
+    </div>
+  </div>
+
   <!-- Scripts -->
   <script src="assets/js/solar-state.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -1106,7 +1258,7 @@
       sb.classList.toggle('flex');
     }
 
-    const VALID_TABS = ['dashboard', 'orders', 'clients', 'projects', 'inventory', 'batches', 'financials', 'engineers'];
+    const VALID_TABS = ['dashboard', 'orders', 'clients', 'projects', 'inventory', 'batches', 'sales', 'financials', 'engineers'];
 
     function switchTab(tabId) {
       if (!VALID_TABS.includes(tabId)) tabId = 'dashboard';
@@ -1139,6 +1291,7 @@
         projects: ['Project Management & Stage Controller', 'Advance installation stages, assign field engineers, and monitor per-project profit margins.'],
         inventory: ['Hardware Warehouse & Cost Control', 'Manage stock levels, unit cost vs. selling price, and low-stock thresholds.'],
         batches: ['Inventory Batches & Shipment Lots', 'Track grouped purchases, staggered delivery dates, remaining lot stock, and FIFO sales.'],
+        sales: ['Direct Inventory Sales & Brand Revenue', 'Record standalone hardware sales, deduct lot stock automatically, and track profit by brand.'],
         financials: ['Financials, Project P&L & General Expenses', 'Track project revenue, hardware COGS, direct site expenses, general overhead, and net profit.'],
         engineers: ['Field Engineers & Site Dispatches', 'Monitor field team capacity and active installation assignments.']
       };
@@ -1174,6 +1327,7 @@
       renderProjectsTab();
       renderInventoryTab();
       renderBatchesTab();
+      renderSalesTab();
       renderFinancialsTab();
       renderEngineersTab();
 
@@ -1589,8 +1743,18 @@
     // =========================================================
     function renderInventoryTab() {
       const m = computeCompanyMetrics();
+      const brands = window.daryjState.getBrands();
+
+      const brandSel = document.getElementById('invBrandFilter');
+      if (brandSel) {
+        const curBrand = brandSel.value || 'all';
+        brandSel.innerHTML = '<option value="all">All Brands</option>' +
+          brands.map(b => `<option value="${b}" ${b === curBrand ? 'selected' : ''}>${b}</option>`).join('');
+      }
+
       const q = (document.getElementById('invSearchInput')?.value || '').toLowerCase();
       const cat = document.getElementById('invCategoryFilter')?.value || 'all';
+      const brandF = document.getElementById('invBrandFilter')?.value || 'all';
 
       document.getElementById('invStatUnits').textContent = `${m.inventory.length} SKUs · ${m.totalUnits} units`;
       document.getElementById('invStatCost').textContent = fmtNaira(m.invCost);
@@ -1599,7 +1763,8 @@
 
       const filtered = m.inventory.filter(i =>
         (cat === 'all' || i.category === cat) &&
-        (!q || i.name.toLowerCase().includes(q) || i.sku.toLowerCase().includes(q))
+        (brandF === 'all' || (i.brand || 'Generic') === brandF) &&
+        (!q || i.name.toLowerCase().includes(q) || i.sku.toLowerCase().includes(q) || (i.brand || '').toLowerCase().includes(q))
       );
 
       const invBody = document.getElementById('inventoryTableBody');
@@ -1611,11 +1776,15 @@
         const batchLinks = itemBatches.length
           ? itemBatches.map(b => `<button onclick="openBatchDetail('${b.id}')" class="font-mono text-[10px] text-[#FBBF24] hover:underline block">${b.id}</button>`).join('')
           : '<span class="text-[10px] text-slate-500">—</span>';
+        const brandLabel = item.brand || 'Generic';
         return `
           <tr class="${isLow ? 'bg-rose-950/20 hover:bg-rose-950/30' : 'hover:bg-slate-800/40'}">
             <td class="py-3 px-3 cursor-pointer" onclick="openInventoryHistory('${item.id}')">
               <div class="font-bold text-white hover:text-[#FBBF24] transition-colors">${item.name}</div>
               <div class="text-[10px] font-mono text-slate-400">${item.sku}</div>
+            </td>
+            <td class="py-3 px-3">
+              <button onclick="openBrandDetail('${brandLabel.replace(/'/g, "\\'")}')" class="font-bold text-cyan-300 hover:text-[#FBBF24] hover:underline text-left">${brandLabel}</button>
             </td>
             <td class="py-3 px-3 text-slate-300 uppercase tracking-wider text-[10px] font-bold">${item.category}</td>
             <td class="py-3 px-3">${batchLinks}</td>
@@ -1700,6 +1869,206 @@
           </tr>
         `;
       }).join('');
+    }
+
+    // =========================================================
+    // TAB 5C: DIRECT INVENTORY SALES
+    // =========================================================
+    function renderSalesTab() {
+      const sales = window.daryjState.getSales();
+      const brands = window.daryjState.getBrands();
+      document.getElementById('navSalesCount').textContent = sales.length;
+
+      const brandSel = document.getElementById('saleBrandFilter');
+      if (brandSel) {
+        const cur = brandSel.value || 'all';
+        brandSel.innerHTML = '<option value="all">All Brands</option>' +
+          brands.map(b => `<option value="${b}" ${b === cur ? 'selected' : ''}>${b}</option>`).join('');
+      }
+
+      let units = 0, rev = 0, profit = 0;
+      sales.forEach(s => {
+        units += Number(s.qty) || 0;
+        rev += Number(s.totalAmount) || 0;
+        profit += Number(s.profit) || 0;
+      });
+      document.getElementById('salStatCount').textContent = sales.length;
+      document.getElementById('salStatUnits').textContent = units;
+      document.getElementById('salStatRev').textContent = fmtNaira(rev);
+      document.getElementById('salStatProfit').textContent = fmtNaira(profit);
+
+      const q = (document.getElementById('saleSearchInput')?.value || '').toLowerCase();
+      const brandF = document.getElementById('saleBrandFilter')?.value || 'all';
+      const filtered = sales.filter(s =>
+        (brandF === 'all' || (s.brand || 'Generic') === brandF) &&
+        (!q || s.id.toLowerCase().includes(q) || (s.customerName || '').toLowerCase().includes(q) || (s.productName || '').toLowerCase().includes(q) || (s.brand || '').toLowerCase().includes(q))
+      );
+
+      const body = document.getElementById('salesTableBody');
+      if (!body) return;
+      if (!filtered.length) {
+        body.innerHTML = '<tr><td colspan="8" class="py-8 text-center text-slate-400">No direct inventory sales recorded yet. Click "+ Record Direct Sale" to log one.</td></tr>';
+        return;
+      }
+
+      body.innerHTML = filtered.map(s => `
+        <tr class="hover:bg-slate-800/40">
+          <td class="py-3 px-3">
+            <div class="font-mono font-bold text-[#FBBF24]">${s.id}</div>
+            <div class="text-[10px] text-slate-400">${s.date}</div>
+          </td>
+          <td class="py-3 px-3">
+            <div class="font-bold text-white">${s.customerName}</div>
+            <div class="text-[10px] text-slate-400">${s.customerPhone || s.paymentMethod}</div>
+          </td>
+          <td class="py-3 px-3">
+            <button onclick="openBrandDetail('${(s.brand || 'Generic').replace(/'/g, "\\'")}')" class="font-bold text-cyan-300 hover:text-[#FBBF24] hover:underline">${s.brand || 'Generic'}</button>
+          </td>
+          <td class="py-3 px-3 text-slate-200 font-semibold">${s.productName}</td>
+          <td class="py-3 px-3 text-center font-bold text-white">${s.qty}</td>
+          <td class="py-3 px-3 text-slate-300">${fmtNaira(s.unitPrice)}</td>
+          <td class="py-3 px-3 font-bold text-white">${fmtNaira(s.totalAmount)}</td>
+          <td class="py-3 px-3 font-bold ${s.profit >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${fmtNaira(s.profit)}</td>
+        </tr>
+      `).join('');
+    }
+
+    function openSaleModal() {
+      const brands = window.daryjState.getBrands();
+      const bf = document.getElementById('salBrandFilter');
+      bf.innerHTML = '<option value="all">All Brands</option>' + brands.map(b => `<option value="${b}">${b}</option>`).join('');
+      document.getElementById('salDate').value = new Date().toISOString().split('T')[0];
+      onSaleBrandFilterChange();
+      openModal('saleModal');
+    }
+
+    function onSaleBrandFilterChange() {
+      const brandF = document.getElementById('salBrandFilter').value;
+      const inv = window.daryjState.getInventory().filter(i => brandF === 'all' || (i.brand || 'Generic') === brandF);
+      const sel = document.getElementById('salItemId');
+      sel.innerHTML = inv.map(i => `<option value="${i.id}" data-price="${i.unitPrice}" data-stock="${i.stock}">[${i.brand || 'Generic'}] ${i.name} (${i.stock} in stock)</option>`).join('');
+      onSaleItemChange();
+    }
+
+    function onSaleItemChange() {
+      const sel = document.getElementById('salItemId');
+      const opt = sel.selectedOptions[0];
+      if (opt) {
+        document.getElementById('salUnitPrice').value = opt.dataset.price || 0;
+      }
+    }
+
+    function submitSaleForm(e) {
+      e.preventDefault();
+      window.daryjState.recordDirectSale({
+        itemId: document.getElementById('salItemId').value,
+        qty: Number(document.getElementById('salQty').value) || 1,
+        unitPrice: Number(document.getElementById('salUnitPrice').value) || 0,
+        customerName: document.getElementById('salCustomerName').value.trim(),
+        customerPhone: document.getElementById('salCustomerPhone').value.trim(),
+        date: document.getElementById('salDate').value,
+        paymentMethod: document.getElementById('salMethod').value
+      });
+      closeModal('saleModal');
+      e.target.reset();
+      renderAdminDashboard();
+    }
+
+    function openBrandDetail(brandName) {
+      const b = window.daryjState.getBrandBreakdown(brandName);
+      document.getElementById('brdDetName').textContent = `${b.brand} (${b.totalSkus} Products)`;
+
+      const prodRows = b.products.map(p => `
+        <tr class="hover:bg-slate-800/40">
+          <td class="py-2 px-3">
+            <div class="font-semibold text-white">${p.name}</div>
+            <div class="text-[10px] font-mono text-slate-400">${p.sku}</div>
+          </td>
+          <td class="py-2 px-3 text-slate-300 uppercase text-[10px] font-bold">${p.category}</td>
+          <td class="py-2 px-3 text-center font-bold text-white">${p.stock}</td>
+          <td class="py-2 px-3 text-center font-bold text-[#FBBF24]">${p.unitsSold}</td>
+          <td class="py-2 px-3 font-bold text-white">${fmtNaira(p.revenue)}</td>
+          <td class="py-2 px-3 font-bold text-emerald-400">${fmtNaira(p.profit)}</td>
+        </tr>
+      `).join('');
+
+      const eventRows = b.events.map(ev => `
+        <tr class="hover:bg-slate-800/40">
+          <td class="py-2 px-3 font-mono text-slate-300 whitespace-nowrap">${ev.date}</td>
+          <td class="py-2 px-3 font-mono font-bold text-[#FBBF24]">${ev.ref}</td>
+          <td class="py-2 px-3 text-slate-300">${ev.type}</td>
+          <td class="py-2 px-3 text-white font-semibold">${ev.client}</td>
+          <td class="py-2 px-3 text-slate-300">${ev.product}</td>
+          <td class="py-2 px-3 text-center font-bold text-white">${ev.qty}</td>
+          <td class="py-2 px-3 font-bold text-emerald-400">${fmtNaira(ev.revenue)}</td>
+        </tr>
+      `).join('');
+
+      document.getElementById('brdDetBody').innerHTML = `
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+            <span class="text-[10px] text-slate-400 uppercase font-bold block">Products</span>
+            <strong class="text-white text-sm">${b.totalSkus} SKUs</strong>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+            <span class="text-[10px] text-slate-400 uppercase font-bold block">In Stock</span>
+            <strong class="text-cyan-400 text-sm">${b.totalStock} units</strong>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+            <span class="text-[10px] text-slate-400 uppercase font-bold block">Units Sold</span>
+            <strong class="text-[#FBBF24] text-sm">${b.totalUnitsSold}</strong>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+            <span class="text-[10px] text-slate-400 uppercase font-bold block">Brand Revenue</span>
+            <strong class="text-white text-sm">${fmtNaira(b.totalRevenue)}</strong>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 col-span-2 sm:col-span-1">
+            <span class="text-[10px] text-slate-400 uppercase font-bold block">Brand Profit</span>
+            <strong class="text-emerald-400 text-sm">${fmtNaira(b.totalProfit)}</strong>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="font-bold text-white mb-2 pb-1.5 border-b border-slate-800">Products by ${b.brand}</h4>
+          <div class="overflow-x-auto rounded-xl border border-slate-800">
+            <table class="w-full text-left text-xs">
+              <thead>
+                <tr class="bg-slate-800/80 text-slate-200 border-b border-slate-700 uppercase tracking-wider text-[10px] font-extrabold whitespace-nowrap">
+                  <th class="py-2 px-3">Product</th>
+                  <th class="py-2 px-3">Category</th>
+                  <th class="py-2 px-3 text-center">In Stock</th>
+                  <th class="py-2 px-3 text-center">Sold</th>
+                  <th class="py-2 px-3">Revenue</th>
+                  <th class="py-2 px-3">Profit</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-800 bg-slate-950">${prodRows}</tbody>
+            </table>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="font-bold text-white mb-2 pb-1.5 border-b border-slate-800">Sales &amp; Project BOM History (${b.events.length})</h4>
+          <div class="overflow-x-auto rounded-xl border border-slate-800">
+            <table class="w-full text-left text-xs">
+              <thead>
+                <tr class="bg-slate-800/80 text-slate-200 border-b border-slate-700 uppercase tracking-wider text-[10px] font-extrabold whitespace-nowrap">
+                  <th class="py-2 px-3">Date</th>
+                  <th class="py-2 px-3">Ref</th>
+                  <th class="py-2 px-3">Channel</th>
+                  <th class="py-2 px-3">Client</th>
+                  <th class="py-2 px-3">Product</th>
+                  <th class="py-2 px-3 text-center">Qty</th>
+                  <th class="py-2 px-3">Revenue</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-800 bg-slate-950">${eventRows || '<tr><td colspan="7" class="py-4 text-center text-slate-500">No sales recorded for this brand yet.</td></tr>'}</tbody>
+            </table>
+          </div>
+        </div>
+      `;
+
+      openModal('brandDetailModal');
     }
 
     // =========================================================
@@ -2621,11 +2990,15 @@
       batchSel.innerHTML = '<option value="">— No Batch Link —</option>' +
         batches.map(b => `<option value="${b.id}">${b.id} — ${b.batchName}</option>`).join('');
 
+      const brands = window.daryjState.getBrands();
+      document.getElementById('brandSuggestions').innerHTML = brands.map(b => `<option value="${b}">`).join('');
+
       if (itemId) {
         const item = window.daryjState.getInventory().find(i => i.id === itemId);
         if (!item) return;
         document.getElementById('invModalTitle').textContent = 'Edit Hardware SKU';
         document.getElementById('invEditId').value = item.id;
+        document.getElementById('invBrand').value = item.brand || '';
         document.getElementById('invName').value = item.name;
         document.getElementById('invSku').value = item.sku;
         document.getElementById('invCategory').value = item.category;
@@ -2637,6 +3010,7 @@
       } else {
         document.getElementById('invModalTitle').textContent = 'Add Hardware SKU';
         document.getElementById('invEditId').value = '';
+        document.getElementById('invBrand').value = '';
         document.getElementById('invName').value = '';
         document.getElementById('invSku').value = '';
         document.getElementById('invStock').value = 5;
@@ -2656,6 +3030,7 @@
       const costVal = Number(document.getElementById('invCostPrice').value);
 
       const payload = {
+        brand: document.getElementById('invBrand').value.trim(),
         name: document.getElementById('invName').value.trim(),
         sku: document.getElementById('invSku').value.trim(),
         category: document.getElementById('invCategory').value,
