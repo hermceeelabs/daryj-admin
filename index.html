@@ -100,7 +100,7 @@
             <i data-lucide="shopping-bag" class="w-4 h-4 shrink-0"></i>
             <span>Client Orders</span>
           </div>
-          <span id="navOrdersCount" class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-slate-800 text-slate-300">0</span>
+          <span id="navOrdersCount" class="text-[11px] font-semibold opacity-75">0</span>
         </button>
 
         <button onclick="switchTab('clients')" class="tab-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-300 hover:bg-white/5 hover:text-white" data-target="clients">
@@ -108,7 +108,7 @@
             <i data-lucide="users" class="w-4 h-4 shrink-0"></i>
             <span>Clients Directory</span>
           </div>
-          <span id="navClientsCount" class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-slate-800 text-slate-300">0</span>
+          <span id="navClientsCount" class="text-[11px] font-semibold opacity-75">0</span>
         </button>
 
         <button onclick="switchTab('projects')" class="tab-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-300 hover:bg-white/5 hover:text-white" data-target="projects">
@@ -116,7 +116,7 @@
             <i data-lucide="wrench" class="w-4 h-4 shrink-0"></i>
             <span>Project Management</span>
           </div>
-          <span id="navActiveProjects" class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/20 text-amber-300">0</span>
+          <span id="navActiveProjects" class="text-[11px] font-semibold opacity-75">0</span>
         </button>
 
         <button onclick="switchTab('inventory')" class="tab-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-300 hover:bg-white/5 hover:text-white" data-target="inventory">
@@ -124,15 +124,12 @@
             <i data-lucide="boxes" class="w-4 h-4 shrink-0"></i>
             <span>Inventory Manager</span>
           </div>
-          <span id="lowStockBadge" class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-500/20 text-rose-300 border border-rose-500/30">0 Low</span>
+          <span id="lowStockBadge" class="text-[11px] font-bold text-rose-400"></span>
         </button>
 
-        <button onclick="switchTab('financials')" class="tab-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-300 hover:bg-white/5 hover:text-white" data-target="financials">
-          <div class="flex items-center gap-3">
-            <i data-lucide="wallet" class="w-4 h-4 shrink-0"></i>
-            <span>Financials &amp; P&amp;L</span>
-          </div>
-          <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-300">₦</span>
+        <button onclick="switchTab('financials')" class="tab-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-300 hover:bg-white/5 hover:text-white" data-target="financials">
+          <i data-lucide="wallet" class="w-4 h-4 shrink-0"></i>
+          <span>Financials &amp; P&amp;L</span>
         </button>
 
         <button onclick="switchTab('engineers')" class="tab-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-300 hover:bg-white/5 hover:text-white" data-target="engineers">
@@ -168,12 +165,12 @@
   <main id="mainViewport" class="flex-1 p-5 sm:p-7 lg:p-8 custom-scrollbar">
 
     <!-- TOP HEADER BAR -->
-    <div class="flex flex-wrap items-center justify-between gap-4 pb-5 mb-7 border-b border-slate-800">
-      <div>
-        <h2 id="viewTitle" class="text-xl sm:text-2xl font-black font-brand text-white tracking-tight">
+    <div class="pb-5 mb-7 border-b border-slate-800 space-y-3">
+      <div class="min-w-0">
+        <h2 id="viewTitle" class="text-xl sm:text-2xl font-black font-brand text-white tracking-tight whitespace-nowrap truncate">
           Executive Operations &amp; Financial Overview
         </h2>
-        <p id="viewSubtitle" class="text-xs text-slate-400 mt-0.5">
+        <p id="viewSubtitle" class="text-xs text-slate-400 mt-0.5 whitespace-nowrap truncate">
           Real-time visibility into orders, clients, inventory, site installations, project profitability, and overhead.
         </p>
       </div>
@@ -255,12 +252,14 @@
       <!-- Financial Breakdown Bar + Alerts -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
         <div class="lg:col-span-2 p-5 rounded-2xl bg-slate-900 border border-slate-800">
-          <div class="flex items-center justify-between mb-4">
-            <div>
-              <h3 class="text-sm font-bold text-white font-brand">Revenue vs. Costs &amp; Profit Allocation</h3>
-              <p class="text-[11px] text-slate-400">Breakdown across hardware COGS, direct site expenses, general overhead, and net profit.</p>
+          <div class="mb-4 space-y-2">
+            <div class="min-w-0">
+              <h3 class="text-sm font-bold text-white font-brand whitespace-nowrap truncate">Revenue vs. Costs &amp; Profit Allocation</h3>
+              <p class="text-[11px] text-slate-400 whitespace-nowrap truncate">Breakdown across hardware COGS, direct site expenses, general overhead, and net profit.</p>
             </div>
-            <button onclick="switchTab('financials')" class="text-xs font-bold text-[#FBBF24] hover:underline">Full P&amp;L ➔</button>
+            <div>
+              <button onclick="switchTab('financials')" class="text-xs font-bold text-[#FBBF24] hover:underline">Full P&amp;L ➔</button>
+            </div>
           </div>
           <div id="overviewPnlBars" class="space-y-3"></div>
         </div>
@@ -279,12 +278,14 @@
 
       <!-- Recent Orders Table -->
       <div class="bg-slate-900 rounded-2xl border border-slate-800 p-5">
-        <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
-          <div>
-            <h3 class="text-sm font-bold text-white font-brand">Recent Client Orders &amp; Site Works</h3>
-            <p class="text-[11px] text-slate-400">Click any order to inspect BOM, record payments, or advance installation stage.</p>
+        <div class="pb-4 mb-4 border-b border-slate-800 space-y-2">
+          <div class="min-w-0">
+            <h3 class="text-sm font-bold text-white font-brand whitespace-nowrap truncate">Recent Client Orders &amp; Site Works</h3>
+            <p class="text-[11px] text-slate-400 whitespace-nowrap truncate">Click any order to inspect BOM, record payments, or advance installation stage.</p>
           </div>
-          <button onclick="switchTab('orders')" class="text-xs font-bold text-[#FBBF24] hover:underline">Manage All Orders ➔</button>
+          <div>
+            <button onclick="switchTab('orders')" class="text-xs font-bold text-[#FBBF24] hover:underline">Manage All Orders ➔</button>
+          </div>
         </div>
 
         <div class="overflow-x-auto">
@@ -411,10 +412,10 @@
     <!-- TAB 4: PROJECT MANAGEMENT & STAGE CONTROL                 -->
     <!-- ========================================================= -->
     <div id="tab-projects" class="tab-content hidden space-y-6">
-      <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-900 rounded-2xl border border-slate-800 p-4">
-        <div>
-          <h3 class="text-sm font-bold text-white font-brand">Site Installations &amp; Project P&amp;L</h3>
-          <p class="text-[11px] text-slate-400">Track installation milestones, reassign engineers, log site expenses, and monitor project margin.</p>
+      <div class="bg-slate-900 rounded-2xl border border-slate-800 p-4 space-y-3">
+        <div class="min-w-0">
+          <h3 class="text-sm font-bold text-white font-brand whitespace-nowrap truncate">Site Installations &amp; Project P&amp;L</h3>
+          <p class="text-[11px] text-slate-400 whitespace-nowrap truncate">Track installation milestones, reassign engineers, log site expenses, and monitor project margin.</p>
         </div>
         <div class="flex items-center gap-2">
           <select id="projectFilterSelect" onchange="renderProjectsTab()" class="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-200">
@@ -534,15 +535,17 @@
 
       <!-- Project-by-Project Profitability Table -->
       <div class="bg-slate-900 rounded-2xl border border-slate-800 p-5">
-        <div class="flex flex-wrap items-center justify-between gap-3 pb-4 mb-4 border-b border-slate-800">
-          <div>
-            <h3 class="text-sm font-bold text-white font-brand">Project Revenue, Cost &amp; Profit Tracking</h3>
-            <p class="text-[11px] text-slate-400">Per-project P&amp;L combining Contract Value, BOM Hardware Cost, and Direct Site Expenses.</p>
+        <div class="pb-4 mb-4 border-b border-slate-800 space-y-3">
+          <div class="min-w-0">
+            <h3 class="text-sm font-bold text-white font-brand whitespace-nowrap truncate">Project Revenue, Cost &amp; Profit Tracking</h3>
+            <p class="text-[11px] text-slate-400 whitespace-nowrap truncate">Per-project P&amp;L combining Contract Value, BOM Hardware Cost, and Direct Site Expenses.</p>
           </div>
-          <button onclick="openExpenseModal('project')" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 text-xs font-bold flex items-center gap-1.5">
-            <i data-lucide="plus" class="w-3.5 h-3.5 text-amber-400"></i>
-            <span>Add Project Expense</span>
-          </button>
+          <div>
+            <button onclick="openExpenseModal('project')" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 text-xs font-bold inline-flex items-center gap-1.5">
+              <i data-lucide="plus" class="w-3.5 h-3.5 text-amber-400"></i>
+              <span>Add Project Expense</span>
+            </button>
+          </div>
         </div>
 
         <div class="overflow-x-auto">
@@ -566,10 +569,10 @@
 
       <!-- General & Project Expenses Ledger -->
       <div class="bg-slate-900 rounded-2xl border border-slate-800 p-5 space-y-4">
-        <div class="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h3 class="text-sm font-bold text-white font-brand">General Overhead &amp; Expense Ledger</h3>
-            <p class="text-[11px] text-slate-400">Track company-wide overhead (rent, salaries, diesel, marketing) and site-specific expenses.</p>
+        <div class="space-y-3">
+          <div class="min-w-0">
+            <h3 class="text-sm font-bold text-white font-brand whitespace-nowrap truncate">General Overhead &amp; Expense Ledger</h3>
+            <p class="text-[11px] text-slate-400 whitespace-nowrap truncate">Track company-wide overhead (rent, salaries, diesel, marketing) and site-specific expenses.</p>
           </div>
           <div class="flex flex-wrap items-center gap-2">
             <select id="expenseTypeFilter" onchange="renderFinancialsTab()" class="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-200">
@@ -985,7 +988,7 @@
       document.getElementById('navOrdersCount').textContent = m.orders.length;
       document.getElementById('navClientsCount').textContent = clients.length;
       document.getElementById('navActiveProjects').textContent = m.activeJobs;
-      document.getElementById('lowStockBadge').textContent = m.lowStockCount + ' Low';
+      document.getElementById('lowStockBadge').textContent = m.lowStockCount > 0 ? `${m.lowStockCount} Low` : '';
 
       // KPI Cards
       document.getElementById('statTotalRev').textContent = fmtNaira(m.totalRev);
@@ -1056,7 +1059,7 @@
             ${ord.balanceDue > 0 ? `<div class="text-[10px] text-amber-400">Due: ${fmtNaira(ord.balanceDue)}</div>` : `<div class="text-[10px] text-slate-500">Settled</div>`}
           </td>
           <td class="py-3 px-3">
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-extrabold ${ord.currentStage >= 5 ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'}">
+            <span class="font-bold ${ord.currentStage >= 5 ? 'text-emerald-400' : 'text-amber-400'}">
               Stage ${ord.currentStage}/5
             </span>
           </td>
@@ -1112,7 +1115,7 @@
               : `<span class="text-[10px] text-emerald-300 font-bold">Paid in Full</span>`}
           </td>
           <td class="py-3.5 px-3">
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-extrabold ${ord.currentStage >= 5 ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'}">
+            <span class="font-bold ${ord.currentStage >= 5 ? 'text-emerald-400' : 'text-amber-400'}">
               ${ord.currentStage}/5 · ${STAGE_NAMES[ord.currentStage] || ''}
             </span>
           </td>
@@ -1161,8 +1164,8 @@
             <div class="text-[10px] text-slate-400">${c.email || '—'}</div>
           </td>
           <td class="py-3.5 px-3 text-slate-300 max-w-[220px] truncate">${c.address || '—'}</td>
-          <td class="py-3.5 px-3 text-center">
-            <span class="px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-200 font-bold">${c.orders.length}</span>
+          <td class="py-3.5 px-3 text-center font-bold text-slate-200">
+            ${c.orders.length}
           </td>
           <td class="py-3.5 px-3 font-bold text-white">${fmtNaira(c.totalContracted)}</td>
           <td class="py-3.5 px-3 font-bold ${c.balanceDue > 0 ? 'text-amber-400' : 'text-emerald-400'}">${c.balanceDue > 0 ? fmtNaira(c.balanceDue) : 'Settled'}</td>
@@ -1198,7 +1201,7 @@
               <div>
                 <div class="flex items-center gap-2">
                   <span class="font-mono text-xs font-bold text-[#FBBF24]">${ord.id}</span>
-                  <span class="text-[10px] px-2 py-0.5 rounded-full font-bold ${ord.currentStage >= 5 ? 'bg-emerald-500/20 text-emerald-300' : 'bg-blue-500/20 text-blue-300'}">
+                  <span class="text-[11px] font-bold ${ord.currentStage >= 5 ? 'text-emerald-400' : 'text-blue-400'}">
                     Stage ${ord.currentStage}/5 · ${STAGE_NAMES[ord.currentStage]}
                   </span>
                 </div>
@@ -1283,8 +1286,8 @@
             </td>
             <td class="py-3 px-3 text-slate-300 uppercase tracking-wider text-[10px] font-bold">${item.category}</td>
             <td class="py-3 px-3 text-center">
-              <span class="inline-block px-2.5 py-1 rounded-full text-xs font-black ${isLow ? 'bg-rose-500/30 text-rose-300 border border-rose-500/40' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'}">
-                ${item.stock}
+              <span class="font-black ${isLow ? 'text-rose-400' : 'text-emerald-400'}">
+                ${item.stock}${isLow ? ' (Low)' : ''}
               </span>
             </td>
             <td class="py-3 px-3 text-slate-300">${fmtNaira(cost)}</td>
@@ -1334,7 +1337,7 @@
             <td class="py-3 px-3 text-orange-400">${fmtNaira(fin.projectExpenses)}</td>
             <td class="py-3 px-3 font-black ${fin.netProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${fmtNaira(fin.netProfit)}</td>
             <td class="py-3 px-3 text-center">
-              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${fin.marginPct >= 20 ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'}">${fin.marginPct}%</span>
+              <span class="font-bold ${fin.marginPct >= 20 ? 'text-emerald-400' : 'text-amber-400'}">${fin.marginPct}%</span>
             </td>
             <td class="py-3 px-3 text-right">
               <button onclick="openExpenseModal('project', '${ord.id}')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-[10px]">+ Site Exp.</button>
@@ -1358,8 +1361,8 @@
           <td class="py-2.5 px-3 font-mono text-slate-300">${e.date}</td>
           <td class="py-2.5 px-3">
             ${e.type === 'project'
-              ? `<span class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-bold text-[10px]">Project: ${e.projectId}</span>`
-              : `<span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-bold text-[10px]">General Overhead</span>`}
+              ? `<span class="font-semibold text-amber-400">Project: ${e.projectId}</span>`
+              : `<span class="font-semibold text-rose-400">General Overhead</span>`}
           </td>
           <td class="py-2.5 px-3 font-semibold text-slate-200">${e.category}</td>
           <td class="py-2.5 px-3 text-slate-300">${e.description}</td>
