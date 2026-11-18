@@ -2878,13 +2878,51 @@
     async function sendReceiptEmail(orderId) {
       const ord = window.daryjState.getOrderById(orderId);
       if (!ord) return;
+      const doc = buildReceiptPDFDoc(ord);
+      if (!doc) return;
+
+      const recipient = (ord.clientEmail || '').trim();
+      const subjectText = `Dary J Electromech Payment Receipt — ${ord.id}`;
+      const bodyText = buildReceiptText(ord);
+
+      if (recipient) {
+        try {
+          const dataUri = doc.output('datauristring');
+          const pdfBase64 = dataUri.split(',')[1];
+          const res = await fetch('/api/send-receipt-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              to: recipient,
+              clientName: ord.clientName,
+              orderId: ord.id,
+              subject: subjectText,
+              text: bodyText,
+              pdfBase64,
+              filename: `DaryJ-Receipt-${ord.id}.pdf`
+            })
+          });
+          const data = await res.json().catch(() => ({}));
+          if (res.ok && data.ok) {
+            alert(`✅ PDF Receipt emailed to ${recipient}!`);
+            return;
+          }
+          if (res.status >= 400 && data && data.configured !== false && res.status !== 404 && res.status !== 405) {
+            alert(`Email API error: ${data.error || 'Could not send email.'}`);
+            return;
+          }
+        } catch (e) {
+          // Local static server or offline: fall through to client-side share/mailto
+        }
+      }
+
       const shared = await tryNativeSharePDF(ord);
       if (shared) return;
       // Desktop fallback: download PDF + open mail client
       downloadReceiptPDF(orderId);
-      const subject = encodeURIComponent(`Dary J Electromech Payment Receipt — ${ord.id}`);
-      const body = encodeURIComponent(buildReceiptText(ord) + '\n\n(Please attach the downloaded PDF receipt before sending.)');
-      window.location.href = `mailto:${encodeURIComponent(ord.clientEmail || '')}?subject=${subject}&body=${body}`;
+      const subject = encodeURIComponent(subjectText);
+      const body = encodeURIComponent(bodyText + '\n\n(Please attach the downloaded PDF receipt before sending.)');
+      window.location.href = `mailto:${encodeURIComponent(recipient)}?subject=${subject}&body=${body}`;
     }
 
     function openExpenseModal(scope = '', projectId = '') {

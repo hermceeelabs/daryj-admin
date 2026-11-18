@@ -4,5 +4,8 @@
   "description": "Dary J Electromech Nig Ltd - Engineering Operations & ERP Portal",
   "scripts": {
     "start": "npx serve ."
+  },
+  "dependencies": {
+    "nodemailer": "^6.9.15"
   }
 }
