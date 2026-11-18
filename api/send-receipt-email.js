@@ -6,13 +6,13 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
   }
 
-  const smtpUser = process.env.SMTP_USER;
-  const smtpPass = process.env.SMTP_PASS;
+  const smtpUser = process.env.SENDBYTE_SMTP_USER || process.env.SMTP_USER;
+  const smtpPass = process.env.SENDBYTE_SMTP_PASS || process.env.SMTP_PASS;
   if (!smtpUser || !smtpPass) {
     return res.status(503).json({
       ok: false,
       configured: false,
-      error: 'SMTP_USER and SMTP_PASS environment variables are not configured.'
+      error: 'SendByte SMTP credentials (SMTP_USER / SMTP_PASS) are not configured.'
     });
   }
 
@@ -24,9 +24,10 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ ok: false, error: 'Missing recipient email (to) or pdfBase64.' });
     }
 
-    const port = Number(process.env.SMTP_PORT || 465);
+    const host = process.env.SMTP_HOST || 'smtp.sendbyte.africa';
+    const port = Number(process.env.SMTP_PORT || 587);
     const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'smtp.gmail.com',
+      host,
       port,
       secure: port === 465,
       auth: {
@@ -51,6 +52,6 @@ module.exports = async function handler(req, res) {
 
     return res.status(200).json({ ok: true, messageId: info.messageId });
   } catch (err) {
-    return res.status(500).json({ ok: false, error: err.message || 'Failed to send email.' });
+    return res.status(500).json({ ok: false, error: err.message || 'Failed to send email via SendByte.' });
   }
 };
