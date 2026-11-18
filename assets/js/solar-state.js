@@ -995,6 +995,66 @@ class DaryJSolarState {
     return newBatch;
   }
 
+  addItemToBatch(batchId, itemId, qty, unitCostOverride = null) {
+    const batches = this.getBatches();
+    const batch = batches.find(b => b.id === batchId);
+    if (!batch) return null;
+
+    const inv = this.getInventory();
+    const invItem = inv.find(i => i.id === itemId);
+    if (!invItem) return null;
+
+    const addQty = Math.max(1, Number(qty) || 1);
+    const unitCost = unitCostOverride !== null && unitCostOverride !== '' ? Number(unitCostOverride) : (invItem.costPrice || 0);
+    const stamp = this.nowStamp();
+
+    // Update inventory stock & history
+    invItem.stock = (Number(invItem.stock) || 0) + addQty;
+    invItem.stockHistory = invItem.stockHistory || [];
+    invItem.stockHistory.unshift({
+      date: stamp,
+      delta: addQty,
+      newStock: invItem.stock,
+      reason: `Batch ${batch.id}: ${batch.batchName}`
+    });
+    if (unitCost > 0 && unitCost !== Number(invItem.costPrice)) {
+      invItem.costPrice = unitCost;
+      invItem.priceHistory = invItem.priceHistory || [];
+      invItem.priceHistory.unshift({
+        date: stamp,
+        costPrice: unitCost,
+        unitPrice: invItem.unitPrice,
+        note: `Updated via Batch ${batch.id}`
+      });
+    }
+    this.saveInventory(inv);
+
+    // Add or increment item inside batch
+    batch.items = batch.items || [];
+    const existingLine = batch.items.find(it => it.itemId === itemId);
+    if (existingLine) {
+      existingLine.qtyPurchased += addQty;
+      existingLine.qtyRemaining += addQty;
+      if (unitCost > 0) existingLine.unitCost = unitCost;
+    } else {
+      batch.items.push({
+        itemId: invItem.id,
+        sku: invItem.sku,
+        name: invItem.name,
+        qtyPurchased: addQty,
+        qtyRemaining: addQty,
+        unitCost
+      });
+    }
+
+    this.saveBatches(batches);
+    return batch;
+  }
+
+  getItemBatches(itemId) {
+    return this.getBatches().filter(b => (b.items || []).some(it => it.itemId === itemId));
+  }
+
   allocateFromBatches(itemId, qtyNeeded, meta = {}) {
     const batches = this.getBatches();
     // FIFO: oldest batches first (reverse order of unshift)
